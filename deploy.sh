@@ -10,7 +10,9 @@ hugo -t book
 
 vine=$GOPATH/src/github.com/lack-io/vine
 if [[ -e "$vine" ]];then
-    mv public $vine/docs
+    rm -fr $vine/docs/*
+    mv public/* $vine/docs/
+    rm -fr public
     echo "update docs to github.com/lack-io/vine"
 fi
 
