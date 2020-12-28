@@ -26,7 +26,7 @@ enableGitInfo = true
   contentDir = 'content'
   weight = 1
 
-# [languages.en]
+# [languages.en1]
 #   languageName = 'English'
 #   contentDir = 'content.en'
 #   weight = 2
@@ -63,7 +63,7 @@ enableGitInfo = true
 
   # Set source repository location.
   # Used for 'Last Modified' and 'Edit this page' links.
-  BookRepo = 'https://github.com/lack-io/vine'
+  # BookRepo = 'https://github.com/lack-io/vine'
 
   # Enable "Edit this page" links for 'doc' page type.
   # Disabled by default. Uncomment to enable. Requires 'BookRepo' param.

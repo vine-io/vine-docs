@@ -2,8 +2,9 @@
 headless: true
 ---
 
-- **快速入门**
-- [安装]({{< relref "/docs/quickstart" >}})
+- **向导**
+- [Service]({{< relref "/docs/guides/service" >}})
+- [Function]({{< relref "/docs/guides/function" >}})
 <br />
 
 - **开发文档**
