@@ -1,4 +1,4 @@
-baseURL = "/"
+baseURL = "https://lack-io.github.io/vine"
 title = "Vine"
 
 enableRobotsTXT = true
