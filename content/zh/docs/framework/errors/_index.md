@@ -16,6 +16,7 @@ type Error struct {
 	Detail   string     `json:"detail,omitempty"`
 	Status   string     `json:"status,omitempty"`
     Position string     `json:"position,omitempty"`
+    Child    *Child     `json:"child,omitempty"`
     Stacks   []*Stack   `json:"stacks,omitempty"`
 }
 ```
