@@ -34,7 +34,7 @@ p := vine.NewEvent("events", service.Client())
 发布 proto 消息
 ```go
 p.Publish(context.TODO(), &proto.Event{Name: "event"})
-``
+```
 ## 订阅
 创建消息处理程序。它的签名应该是 `func(context.Context, v interface{}) error`
 ```go
