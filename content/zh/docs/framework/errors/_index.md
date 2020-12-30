@@ -82,7 +82,8 @@ b := errors.Equal(err1, err2)
 链式调用
 ```go
 e := errors.New("go.vine.srv.example", "name must be set", 404).
-        Caller(). // 记录错误位置 
-		Stack(10001, "stack context") // 追加上下文信息 
+        WithChild(111, "%v", "child error"). // 添加额外错误
+        WithPos(). // 记录错误位置 
+		WithStack(10001, "stack context") // 追加上下文信息 
 ```
 
