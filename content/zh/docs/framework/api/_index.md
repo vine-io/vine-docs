@@ -14,18 +14,18 @@ description: >
 
 ![vine api](2020-12-30-11-14-15.png)
 
-`vine api` 基于 **API**.
+`vine api` 基于 **API**。
 
 ## handler
 处理程序是用于处理请求的 http 程序。它比使用 http.Handler 模式更方便。
 
-- api - 处理任何 HTTP 请求。通过 RPC 完全控制 http 请求 / 响应.
-- broker - 实现 go-micro 代理接口的 http 处理程序
-- event - 处理任何 HTTP 请求并发布到消息总线.
-- http - 处理任何 HTTP 请求，并作为反向代理转发.
-- registry - 实现 vine **Registry** 接口的 http 处理程序
-- rpc - 处理 json 和原式 POST 请求。转发为 RPC.
-- web - 包含 web 套接字支持的 HTTP 处理程序.
+- api - 处理任何 HTTP 请求。通过 RPC 完全控制 http 请求 / 响应。
+- broker - 实现 vine 代理接口的 http 处理程序。
+- event - 处理任何 HTTP 请求并发布到消息总线。
+- http - 处理任何 HTTP 请求，并作为反向代理转发。
+- registry - 实现 vine **Registry** 接口的 http 处理程序。
+- rpc - 处理 json 和原始 POST 请求。转发为 RPC。
+- web - 包含 websocket 支持的 HTTP 处理程序。
 
 ## API handler
 API 处理程序是默认处理程序。它提供任何 HTTP 请求，并作为具有特定格式的 RPC 请求转发.
