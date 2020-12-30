@@ -11,11 +11,12 @@ description: >
 我们定义以下错误类型
 ```go
 type Error struct {
-	Id       string `json:"id,omitempty"`
-	Code     int32  `json:"code,omitempty"`
-	Detail   string `json:"detail,omitempty"`
-	Status   string `json:"status,omitempty"`
-	Position string `json:"position,omitempty"`
+	Id       string     `json:"id,omitempty"`
+	Code     int32      `json:"code,omitempty"`
+	Detail   string     `json:"detail,omitempty"`
+	Status   string     `json:"status,omitempty"`
+    Position string     `json:"position,omitempty"`
+    Stacks   []*Stack   `json:"stacks,omitempty"`
 }
 ```
 在系统中，要求用户从处理程序返回错误或从客户端接收错误的任何位置，都应认为是 **Vine** 错误，或者应该生成错误。默认情况下，我们返回 `errors.InternalServerError`，如果出现错误错误则返回 `errors.Timeout`。
@@ -50,18 +51,18 @@ if err != nil {
 
 ## 错误列表
 ```go
-func BadGateway(id, format string, a ...interface{}) error
-func BadRequest(id, format string, a ...interface{}) error
-func Conflict(id, format string, a ...interface{}) error
-func Forbidden(id, format string, a ...interface{}) error
-func GatewayTimeout(id, format string, a ...interface{}) error
-func InternalServerError(id, format string, a ...interface{}) error
-func MethodNotAllowed(id, format string, a ...interface{}) error
-func NotFound(id, format string, a ...interface{}) error
-func NotImplemented(id, format string, a ...interface{}) error
-func ServiceUnavailable(id, format string, a ...interface{}) error
-func Timeout(id, format string, a ...interface{}) error
-func Unauthorized(id, format string, a ...interface{}) error
+func BadGateway(id, format string, a ...interface{}) *errors.Error
+func BadRequest(id, format string, a ...interface{}) *errors.Error
+func Conflict(id, format string, a ...interface{}) *errors.Error
+func Forbidden(id, format string, a ...interface{}) *errors.Error
+func GatewayTimeout(id, format string, a ...interface{}) *errors.Error
+func InternalServerError(id, format string, a ...interface{}) *errors.Error
+func MethodNotAllowed(id, format string, a ...interface{}) *errors.Error
+func NotFound(id, format string, a ...interface{}) *errors.Error
+func NotImplemented(id, format string, a ...interface{}) *errors.Error
+func ServiceUnavailable(id, format string, a ...interface{}) *errors.Error
+func Timeout(id, format string, a ...interface{}) *errors.Error
+func Unauthorized(id, format string, a ...interface{}) *errors.Error
 ```
 
 ## 自定义错误
@@ -72,8 +73,16 @@ customErr := errors.New("go.vine.srv.example", "custom error", 510, true)
 ```
 
 ## 其他
+
 判断错误类型是否相同
 ```go
 b := errors.Equal(err1, err2)
+```
+
+链式调用
+```go
+e := errors.New("go.vine.srv.example", "name must be set", 404).
+        Caller(). // 记录错误位置 
+		Stack(10001, "stack context") // 追加上下文信息 
 ```
 
