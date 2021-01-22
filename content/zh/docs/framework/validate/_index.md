@@ -190,8 +190,10 @@ message S {
 - default: 字段为空时指定的默认值，(不可用 required 同时使用)
 - in, enum: 判断字段的值是否存在于指定的列表中
 - not_in: 判断字段的值是否在指定的列表之外
-- min: 指定字段的最小值
-- max: 指定字段的最大值
+- lt: 指定字段小于指定值
+- lte: 指定字段的小于等于指定值
+- gt: 指定字段大于指定值
+- gte: 指定字段大于等于指定值
 
 ```protobuf
 message S {
@@ -206,8 +208,10 @@ message S {
     // +gen:not_in=[4,5]
     int32 b = 3;
 
-    // +gen:min=3
-    // +gen:max=10
+    // +gen:ge=3
+    // +ggen:gte=4
+    // +gen:lte=9
+    // +gen:lt=10
     int64 c = 4;
 }
 ```
