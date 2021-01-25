@@ -96,7 +96,6 @@ message Response {
 使用 protoc、protoc-gen-gogofaster、protoc-gen-vine 来生成 protobuf code
 ```bash
 go get github.com/gogo/protobuf
-go get github.com/gogo/googleapis
 go get github.com/lack-io/vine/cmd/protoc-gen-gogofaster
 go get github.com/lack-io/vine/cmd/protoc-gen-vine
 ```
