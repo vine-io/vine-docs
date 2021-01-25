@@ -147,7 +147,7 @@ message Sub {
 - prefix: 判断字段是否以给定的值为开头
 - suffix: 判断字段是否以给定的值为结尾
 - contains: 判断字段是否包含给定的值
-- pattern: 判断该子弹是否为有效的正则表达式
+- pattern: 判断该字段是否为有效的正则表达式
 - number: 判断该字段是否为有效数字
 - email: 判断该字段是否为有效的邮箱地址
 - ip: 判断该字段是否为有效的 ip 地址
@@ -155,7 +155,7 @@ message Sub {
 - ipv6: 判断该字段是否为有效的 ipv6
 - crontab: 判断该字段是否为有效的 crontab 表达式
 - uuid: 判断该字段是否为有效的 uuid v4
-- uri: 判断该字段是否为有效的 uri"
+- uri: 判断该字段是否为有效的 uri
 - domain: 判断该字段是否为有效的域名
 
 ```protobuf
