@@ -29,7 +29,7 @@ type Service interface {
 
 使用 `service.NewService` 创建服务
 ```go
-import vine "github.com/lack-io/vine/service"
+import "github.com/lack-io/vine"
 
 service = vine.NewService()
 ```
@@ -52,7 +52,7 @@ import (
 	"fmt"
 
 	"github.com/lack-io/cli"
-	vine "github.com/lack-io/vine/service"
+	"github.com/lack-io/vine"
 )
 
 	service := vine.NewService(
@@ -209,7 +209,7 @@ import (
         "log"
         "context"
 
-        vine "github.com/lack-io/vine/service"
+        "github.com/lack-io/vine"
         pb "github.com/lack-io/examples/service/proto"
 )
 

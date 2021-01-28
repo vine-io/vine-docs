@@ -24,7 +24,7 @@ type Function interface {
 
 使用 `service.NewFunction` 创建 Function
 ```go
-import vine "github.com/lack-io/vine/service"
+import "github.com/lack-io/vine"
 
 function = vine.NewFunction()
 ```
@@ -47,7 +47,7 @@ import (
 	"fmt"
 
 	"github.com/lack-io/cli"
-	vine "github.com/lack-io/vine/service"
+	"github.com/lack-io/vine"
 )
 
 	function := vine.NewFunction(
@@ -199,7 +199,7 @@ import (
         "log"
         "context"
 
-        vine "github.com/lack-io/vine/service"
+        "github.com/lack-io/vine"
         pb "github.com/lack-io/examples/service/proto"
 )
 

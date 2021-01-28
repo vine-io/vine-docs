@@ -49,7 +49,7 @@ VINE_REGISTRY=consule VINE_TRANSPORT=rabbitmq VINE_BROKER=kafka service
 package main
 
 import (
-    vine "github.com/lack-io/vine/service"
+    "github.com/lack-io/vine"
 
     // consul registry
     "github.com/lack-io/plugins/registry/consul"

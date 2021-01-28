@@ -1,13 +1,4 @@
----
-title: "欢迎来到 Vine 文档"
-linkTitle: "文档"
-date: 2020-12-29T09:54:20+08:00
-menu:
-  main:
-    weight: 20
----
-
-[![License](https://img.shields.io/:license-apache-blue.svg)](https://opensource.org/licenses/Apache-2.0) [![Go.Dev reference](https://img.shields.io/badge/go.dev-reference-007d9c?logo=go&logoColor=white&style=flat-square)](https://pkg.go.dev/github.com/lack-io/vine?tab=doc) [![Travis CI](https://api.travis-ci.org/lack-io/vine.svg?branch=master)](https://travis-ci.org/lack-io/vine) [![Go Report Card](https://goreportcard.com/badge/lack-io/vine)](https://goreportcard.com/report/github.com/lack-io/vine) 
+[![License](https://img.shields.io/:license-apache-blue.svg)](https://opensource.org/licenses/Apache-2.0) [![Go.Dev reference](https://img.shields.io/badge/go.dev-reference-007d9c?logo=go&logoColor=white&style=flat-square)](https://pkg.go.dev/github.com/lack/vine?tab=doc) [![Travis CI](https://api.travis-ci.org/lack-io/vine.svg?branch=master)](https://travis-ci.org/lack-io/vine) [![Go Report Card](https://goreportcard.com/badge/lack-io/vine)](https://goreportcard.com/report/github.com/lack-io/vine)
 
 Vine (*/vaɪn/*) 一套简单、高效、可插拔的分布式 RPC 框架。
 
@@ -27,7 +18,7 @@ Vine (*/vaɪn/*) 一套简单、高效、可插拔的分布式 RPC 框架。
 
 - **服务发现 (Service disconvery)** - 自动服务注册和名称解析。服务发现是微服务开发的核心功能。当服务A与服务B通讯时，需要知道服务B的IP地址等信息。**Vine** 内置(mdns)作为服务发现组件，它是零配置系统。
 
-- **负载均衡 (Load Balancing)** - 基于服务发现的客户端负载均衡。当内部存在多个服务实例的地址时，我们需要一种方式确定路由到哪个节点，默认使用随机指定其中一个地址。同时在请求错误时重试不同的节点。 
+- **负载均衡 (Load Balancing)** - 基于服务发现的客户端负载均衡。当内部存在多个服务实例的地址时，我们需要一种方式确定路由到哪个节点，默认使用随机指定其中一个地址。同时在请求错误时重试不同的节点。
 
 - **消息编码 (Message Encoding)** - 基于`Content-Type`的动态消息编码。Codec 为客户端和服务端提供 Go 类型的编码和解码，支持各种不同的类型。默认使用 protobuf 和 json。
 
@@ -49,10 +40,9 @@ Vine 遵守 Apache 2.0 开源许可.
 
 ```bash
 go get github.com/gogo/protobuf
-go get github.com/gogo/googleapis
 go get github.com/lack-io/vine/cmd/protoc-gen-gogofaster
 go get github.com/lack-io/vine/cmd/protoc-gen-vine
-go get github.com/lack-io/vine
+go get github.com/lack-io/cmd/vine
 ```
 
 ### proto 文件
@@ -61,12 +51,11 @@ syntax = "proto3";
 
 package testdata;
 
-import "github.com/gogo/googleapis/google/api/annotations.proto";
-
+// +gen:openapi
 service Rpc {
-  rpc HelloWorld(HelloWorldRequest) returns (HelloWorldResponse) {
-    option (google.api.http) = { post: "/api/{name}"; body: "*"; };
-  };
+  // +gen:post=/api/{name}
+  // +gen:body=*
+  rpc HelloWorld(HelloWorldRequest) returns (HelloWorldResponse) {};
 }
 
 message HelloWorldRequest {
@@ -84,7 +73,6 @@ message HelloWorldResponse {
 protoc -I=. \
   -I=$GOPATH/src \
   -I=$GOPATH/src/github.com/gogo/protobuf/protobuf \
-  -I=$GOPATH/src/github.com/gogo/googleapis \
   --gogofaster_out=plugins=grpc:. --vine_out=. example/proto/test.proto
 ```
 
@@ -96,7 +84,7 @@ import (
 	"context"
 	"fmt"
 
-	vine "github.com/lack-io/vine/service"
+	"github.com/lack-io/vine"
 	pb "example/proto"
 )
 
@@ -131,7 +119,7 @@ import (
 	"context"
 	"fmt"
 
-	vine "github.com/lack-io/vine/service"
+	"github.com/lack-io/vine"
 	pb "example/proto"
 )
 
@@ -160,3 +148,4 @@ vine api --handler=rpc
 ```bash
 curl -H 'Content-Type: application/json' -d '{}' http://localhost:8080/api/vine
 ```
+
