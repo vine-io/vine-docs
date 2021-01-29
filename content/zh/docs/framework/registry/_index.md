@@ -16,11 +16,11 @@ description: >
 type Registry interface {
 	Init(...Option) error
 	Options() Options
-	Register(*Service, ...RegisterOption) error
-	Deregister(*Service, ...DeregisterOption) error
-	GetService(string, ...GetOption) ([]*Service, error)
-	ListServices(...ListOption) ([]*Service, error)
-	Watch(...WatchOption) (Watcher, error)
+	Register(*regpb.Service, ...RegisterOption) error
+	Deregister(*regpb.Service, ...DeregisterOption) error
+	GetService(string, ...GetOption) ([]*regpb.Service, error)
+	ListServices(...ListOption) ([]*regpb.Service, error)
+	Watch(...WatchOption) (regpb.Watcher, error)
 	String() string
 }
 ```
@@ -36,6 +36,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/lack-io/vine/service/registry"
+	regpb "github.com/lack-io/vine/proto/registry"
 )
 
 func main() {
@@ -45,14 +46,14 @@ func main() {
 	// initialize registry
 	r.Init()
 
-	s := &registry.Service{
+	s := &regpb.Service{
 		Name:     "go.vine.srv",
 		Version:  "1.0.0",
 		Metadata: map[string]string{},
-		Endpoints: []*registry.Endpoint{{
-			Request: &registry.Value{},
+		Endpoints: []*regpb.Endpoint{{
+			Request: &regpb.Value{},
 		}},
-		Nodes: []*registry.Node{&registry.Node{
+		Nodes: []*regpb.Node{&regpb.Node{
 			Id:      uuid.New().String(),
 			Address: "127.0.0.1:1111",
 		}},
