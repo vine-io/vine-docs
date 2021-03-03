@@ -35,7 +35,7 @@ go get github.com/lack-io/vine/cmd/protoc-gen-validator
 
 ### 3.生成 Validate() 方法
 ```bash
-protoc -I=$GOPATH/src -I=$GOPATH/src/github.com/gogo/googleapis --gogofaster_out=plugins=grpc:.  --validator_out=:. proto/validator.proto
+protoc -I=$GOPATH/src --gogofaster_out=plugins=grpc:.  --validator_out=:. proto/validator.proto
 ```
 执行完成后生成以下代码:
 ```golang
