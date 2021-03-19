@@ -2,14 +2,14 @@
 title: "OpenAPI"
 date: 2021-01-25T18:42:52+08:00
 draft: false
-weight: 4
+weight: 2
 description: >
   *OpenAPI* 通过 `protoc-gen-vine` 集成 openapi3.0。
 ---
 
 
 ## 概述
-*Vine* 内部集成 openapi3.0，`protoc-gen-vine` 通过识别 protobuf 文件的注释生成 Openapi3.0 文档。类似 [Validator](https://lack-io.github.io/vine/docs/framework/validate/)。 
+*Vine* 内部集成 openapi3.0，`protoc-gen-vine` 通过识别 protobuf 文件的注释生成 Openapi3.0 文档。类似 [Validator](https://lack-io.github.io/vine/docs/tools/validate/)。 
 
 ## 使用
 ### 1.先编写 helloworld.proto 文件

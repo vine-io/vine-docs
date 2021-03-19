@@ -1,14 +1,14 @@
 ---
-title: "Validate"
+title: "Dao"
 date: 2021-01-18T11:11:29+08:00
 draft: false
 weight: 3
 description: >
-  *Validate* 通过 `protoc-gen-validator` 生成 `Validate()` 接口，减少非业务代码的编写。
+  *Dao* 通过 `protoc-gen-dao` 生成数据库CURD代码。
 ---
 
 ## 概述
-服务运行中，经常需要和其他客户端进行数据交互，验证来自客户端的数据的合法性。但是这些代码编写起来枯燥且易错，**vine** 提供 `protoc-gen-validator` 工具来自动生成结构体 `Validate()` 方法，减少一部分代码的手动编写。 
+**Vine** 提供 `protoc-gen-dao` 工具通过识别`*.proto`文件的注释
 
 ## 使用
 ### 1.先编写 validator.proto 文件
