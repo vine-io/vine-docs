@@ -6,6 +6,7 @@
 
 ```bash
 git clone https://github.com/lack-io/vine-docs
+git submodule update --init --recursive
 ```
 
 # 添加文档内容

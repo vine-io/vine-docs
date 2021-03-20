@@ -8,239 +8,310 @@ description: >
 ---
 
 ## 概述
-**Vine** 提供 `protoc-gen-dao` 工具通过识别`*.proto`文件的注释
+`Dao` 是 **Vine** 框架的数据库交互模块，而`protoc-gen-dao`工具则可以通过识别`*.proto`来生成对应的数据库交互代码。减少大量重复代码的编写，提高用户效率。
 
 ## 使用
-### 1.先编写 validator.proto 文件
+### 1.先编写 user.proto 文件
 ```protobuf
-message Person {
-  // +gen:min_len=4
-  // +gen:max_len=10
-  string name = 1;
+syntax = "proto3";
 
-  // +gen:required;gt=10;lt=100
-  int32 age = 2;
+package v1;
 
-  // +gen:required;min_bytes=3;max_bytes=4;
-  bytes any = 3;
+// +dao:generate
+message User {
+  // +dao:PK
+  string id = 1;
 
-  // +gen:email
-  string email = 4;
+  string name = 2;
+
+  repeated string following = 3;
+
+  map<string, string> tags = 4;
+
+  Other other = 5;
+}
+
+message Other {
+  string k = 1;
+  string v = 2;
 }
 ```
-### 2.安装 protoc-gen-validator
+### 2.安装 protoc-gen-dao
 ```bash
-go get github.com/lack-io/vine/cmd/protoc-gen-validator
+go get github.com/lack-io/vine/cmd/protoc-gen-dao
 ```
 
-### 3.生成 Validate() 方法
+### 3.生成CURD代码
 ```bash
-protoc -I=$GOPATH/src --gogofaster_out=plugins=grpc:.  --validator_out=:. proto/validator.proto
+protoc -I=$GOPATH/src --gogofaster_out=plugins=grpc:.  --dao_out=:. proto/dao.proto
 ```
-执行完成后生成以下代码:
-```golang
-func (m *Person) Validate() error {
-	errs := make([]error, 0)
-	if len(m.Name) != 0 {
-		if !(len(m.Name) >= 4) {
-			errs = append(errs, errors.New("field 'name' length must less than '4'"))
-		}
-		if !(len(m.Name) <= 10) {
-			errs = append(errs, errors.New("field 'name' length must great than '10'"))
-		}
-	}
-	if int64(m.Age) == 0 {
-		errs = append(errs, errors.New("field 'age' is required"))
-	} else {
-		if !(m.Age < 100) {
-			errs = append(errs, errors.New("field 'age' must less than '100'"))
-		}
-		if !(m.Age > 10) {
-			errs = append(errs, errors.New("field 'age' must great than '10'"))
-		}
-	}
-	if len(m.Any) == 0 {
-		errs = append(errs, errors.New("field 'any' is required"))
-	} else {
-		if !(len(m.Any) <= 3) {
-			errs = append(errs, errors.New("field 'any' length must less than '3'"))
-		}
-		if !(len(m.Any) >= 4) {
-			errs = append(errs, errors.New("field 'any' length must great than '4'"))
-		}
-	}
-	if len(m.Email) != 0 {
-		if !is.Email(m.Email) {
-			errs = append(errs, errors.New("field 'email' is not a valid email"))
-		}
-	}
-	return is.MargeErr(errs...)
-}
+执行完成后生成以下文件:
+```bash
+-rw-r--r--  1 lack  staff   7.8K Mar 19 22:26 user.pb.dao.go
+-rw-r--r--  1 lack  staff    20K Mar 19 22:26 user.pb.go
+-rw-r--r--  1 lack  staff   255B Mar 18 23:00 user.proto
 ```
-### 4.验证
+`*.pb.dao.go` 中保存着CURD代码。
+### 4.CURD 实例
 ```golang
 func main() {
- 	p := pb.Person{}
-	p.Age = 1
-	p.Email = "11"
- 	err := p.Validate()
- 	log.Printf("%v\n", err)
+	dao.DefaultDialect = sqlite.NewDialect(dao.DSN("user.db"), dao.Logger(logger.Default.LogMode(logger.Info)))
+	dao.DefaultDialect.Init()
+
+    // 注册 Schema, 会在数据库中创建对应的表
+	v1.RegistryUser(&v1.User{})
+
+	ctx := context.TODO()
+	u := &v1.User{
+		Id: "1",
+		Name: "Lack",
+		Following: []string{"JJ", "OO"},
+		Tags: map[string]string{"label": "vv"},
+		Other:     &v1.Other{
+			K: "k1",
+			V: "v1",
+		},
+	}
+
+	fmt.Println("Create ==============>")
+	out, err := v1.FromUser(u).Create(ctx)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(out)
+
+	fmt.Println("Updates ==============>")
+	out, err = v1.FromUser(&v1.User{Id: "1", Tags: map[string]string{"aa": "vv"}}).Updates(ctx)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(out)
+
+
+	fmt.Println("FindAll ==============>")
+	outs, err := v1.FromUser(&v1.User{Tags: map[string]string{"aa": "vv"}}).FindAll(ctx)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(outs)
+
+	fmt.Println("FindOne ==============>")
+	out, err = v1.FromUser(&v1.User{Id: "1"}).FindOne(ctx)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(outs)
+
+	fmt.Println("SoftDelete ==============>")
+	err = v1.FromUser(&v1.User{Id: "1"}).SoftDelete(ctx)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println("Delete ==============>")
+	err = v1.FromUser(&v1.User{Id: "1"}).Delete(ctx)
+	if err != nil {
+		//log.Fatal(err)
+	}
 }
-// output:  field 'age' must great than '10';field 'any' is required;field 'email' is not a valid email
 ```
-多个错误时，使用 `;` 隔开
 
 ## 语法解析
-`protoc-gen-validator` 通过解析 `protobuf` 中的注释来生成 `Validate()` 规则。
+`protoc-gen-dao` 通过解析 `protobuf` 中的注释来生成代码。repeated, map, message 字段会生成新的结构体，在数据库中存储格式为 json。
+每个带`+dao:generate`注释的 message 会生成 *Schema 结构体，并生成对应的 CURD 方法。
+```golang
+// 注册 User 相应的数据库表
+func RegistryUser(in *User) error 
+// User => UserSchema, 忽略空值字段
+func FromUser(in *User) *UserSchema 
+// UserSchema => User
+func (m *UserSchema) ToUser() *User
+// User 结构体在数据库中的表名
+func (UserSchema) TableName() string 
+// 主键信息，返回主键名称、值、是否为零值
+func (m UserSchema) PrimaryKey() (string, interface{}, bool)
+// 分页查询
+func (m *UserSchema) FindPage(ctx context.Context, page, size int, exprs ...clause.Expression) ([]*User, error) 
+// 查询所有符合的记录
+func (m *UserSchema) FindAll(ctx context.Context, exprs ...clause.Expression) ([]*User, error) 
+// 查询首条符合的记录
+func (m *UserSchema) FindOne(ctx context.Context, exprs ...clause.Expression) (*User, error)
+// 插入一条记录
+func (m *UserSchema) Create(ctx context.Context) (*User, error) 
+// 更新记录
+func (m *UserSchema) Updates(ctx context.Context) (*User, error)
+// 软删除
+func (m *UserSchema) SoftDelete(ctx context.Context) error 
+// 直接删除记录
+func (m *UserSchema) Delete(ctx context.Context) error 
+```
+
+### 类型转化
+
+slice、map、message 自动生成实现 driver.Valuer 接口的类型
 ```protobuf
-// +gen:ignore
-message Struct {
-    // +gen:required
-    string field1 = 1;
-    
-    // +gen:required;email
-    // +gen:min_len=3
-    string field2 = 2;
+repeated string following = 3;
+```
+生成
+```golang
+type UserFollowing []string
+
+// Value return json value, implement driver.Valuer interface
+func (m UserFollowing) Value() (driver.Value, error) {
+	if len(m) == 0 {
+		return nil, nil
+	}
+	b, err := _go.Marshal(m)
+	return string(b), err
+}
+
+// Scan scan value into Jsonb, implements sql.Scanner interface
+func (m *UserFollowing) Scan(value interface{}) error {
+	var bytes []byte
+	switch v := value.(type) {
+	case []byte:
+		bytes = v
+	case string:
+		bytes = []byte(v)
+	default:
+		return errors.New(fmt.Sprint("Failed to unmarshal JSONB value:", value))
+	}
+
+	return _go.Unmarshal(bytes, &m)
+}
+
+func (m *UserFollowing) DaoDataType() string {
+	return "json"
 }
 ```
+```protobuf
+map<string, string> tags = 4;
+```
+生成
+```golang
+type UserTags map[string]string
+
+// Value return json value, implement driver.Valuer interface
+func (m UserTags) Value() (driver.Value, error) {
+	if len(m) == 0 {
+		return nil, nil
+	}
+	b, err := _go.Marshal(m)
+	return string(b), err
+}
+
+// Scan scan value into Jsonb, implements sql.Scanner interface
+func (m *UserTags) Scan(value interface{}) error {
+	var bytes []byte
+	switch v := value.(type) {
+	case []byte:
+		bytes = v
+	case string:
+		bytes = []byte(v)
+	default:
+		return errors.New(fmt.Sprint("Failed to unmarshal JSONB value:", value))
+	}
+
+	return _go.Unmarshal(bytes, &m)
+}
+
+func (m *UserTags) DaoDataType() string {
+	return "json"
+}
+```
+```protobuf
+Other other = 5;
+```
+生成
+```golang
+type UserOther Other
+
+// Value return json value, implement driver.Valuer interface
+func (m *UserOther) Value() (driver.Value, error) {
+	if m == nil {
+		return nil, nil
+	}
+	b, err := _go.Marshal(m)
+	return string(b), err
+}
+
+// Scan scan value into Jsonb, implements sql.Scanner interface
+func (m *UserOther) Scan(value interface{}) error {
+	var bytes []byte
+	switch v := value.(type) {
+	case []byte:
+		bytes = v
+	case string:
+		bytes = []byte(v)
+	default:
+		return errors.New(fmt.Sprint("Failed to unmarshal JSONB value:", value))
+	}
+
+	return _go.Unmarshal(bytes, &m)
+}
+
+func (m *UserOther) DaoDataType() string {
+	return "json"
+}
+```
+
+### JSON 支持
+`protoc-gen-dao` 将 slice、map 和 message 类型的字段转化为JSON格式并存储到数据库中，同时 Dao 支持通过 JSON 来作为查询条件。以下是JSON格式查询的条件
+```golang
+    // slice 格式，查询slice包含指定项的记录
+    if len(m.Following) != 0 {
+		for _, item := range m.Following {
+			exprs = append(exprs, dao.DefaultDialect.JSONBuild(tx, "following").Contains(item))
+		}
+	}
+    // map 格式，查询kv符合条件的记录，key 类型必须为 string
+	if m.Tags != nil {
+		for k, v := range m.Tags {
+			exprs = append(exprs, dao.DefaultDialect.JSONBuild(tx, "tags").Equals(v, k))
+		}
+	}
+    // struct 格式，精确查询 JSON 
+    // 支持两种方式:
+    //  * 当传入 key 的值为空，查询对应 JSON key 是否存在
+    //  * 当传入 key 为确定值时，查询对应 JSON key 是否等于对应的值
+	if m.Other != nil {
+		for k, v := range dao.FieldPatch(m.Other) {
+			if v == nil {
+				exprs = append(exprs, dao.DefaultDialect.JSONBuild(tx, "other").HasKeys(strings.Split(k, ",")...))
+			} else {
+				exprs = append(exprs, dao.DefaultDialect.JSONBuild(tx, "other").Equals(v, strings.Split(k, ",")...))
+			}
+		}
+	}
+```
+> 注: 如果默认数据库选择 Sqlite3 时，默认不支持 json_each, json_extract 方法，需要添加 -tags 选项。 `go build -tags JSON1 main.go`
 
 ### 语法规则
 有效的注释有以下的规则:
-- 注释必须以 `+gen` 作为开头
+- 注释必须以 `+dao` 作为开头
 - 注释的内容必须紧贴对应的字段，中间不能有空行
 - 支持多行注释，也可以将多行合并成一行，并用 `;` 作为分隔符
+- 只有带 `+dao:generate` 注释的 message 才会生成 CURD 代码
 
-### 类型支持
-`message` 类型规则:
-- ignore: 忽略该 message ，不生成 `Validate()` 方法
-
+### 语法支持
+#### 代码输出路径
+`protoc-gen-dao` 支持将CURD代码输出到指定路径
 ```protobuf
-// +gen:ignore
-message P {
+// +output:github.com/lack-io/vine/testdata/db/dao;dao
+syntax = "protoc"
+...
+```
+使用 `+output`为开头，写在 protobuf 文件开头，指定生成的路径(对应$GOPATH)和生成 package 名称。
 
-}
+#### message 支持
+message 支持以下注释:
+```protobuf
+// +dao:generate  => 只有标识该注释的 message 才会生成 CURD 代码
 ```
 
-`message` 作为内嵌字段时支持的规则:
-- required: 判断该字段是否为 nil。
-
+#### field 支持
 ```protobuf
-message P {
-    // +gen:required
-    Sub sub = 1;
-}
-
-message Sub {
-
-}
+// +dao:PK   => 指定字段为主键(必须), 可以是 string 和 数字, 当 int 类型时自增 
+//              当多个 PK 字段存在时，默认选择第一个。
+...
 ```
-
-> 注: 在引用外部的 message 时，请确认 message 存在 Validate() 方法
-
-`string` 类型支持的规则
-- required: 判断是否为空
-- default: 字段为空时指定的默认值，(不可用 required 同时使用)
-- in, enum: 判断字段的值是否存在于指定的列表中
-- not_in: 判断字段的值是否在指定的列表之外
-- min_len: 指定字段的最小长度
-- max_len: 指定字段的最大长度
-- prefix: 判断字段是否以给定的值为开头
-- suffix: 判断字段是否以给定的值为结尾
-- contains: 判断字段是否包含给定的值
-- pattern: 判断该字段是否为有效的正则表达式
-- number: 判断该字段是否为有效数字
-- email: 判断该字段是否为有效的邮箱地址
-- ip: 判断该字段是否为有效的 ip 地址
-- ipv4: 判断该字段是否为有效的 ipv4
-- ipv6: 判断该字段是否为有效的 ipv6
-- crontab: 判断该字段是否为有效的 crontab 表达式
-- uuid: 判断该字段是否为有效的 uuid v4
-- uri: 判断该字段是否为有效的 uri
-- domain: 判断该字段是否为有效的域名
-
-```protobuf
-message S {
-    // +gen:required
-    // +gen:default="hello"
-    // +gen:in=["1", "2", "3"]
-    // +gen:enum=["a", "b", "c"]
-    // +gen:not_in=["d", "s"]
-    // +gen:min_len=3
-    // +gen:min_max=4
-    // +gen:prefix="http"
-    // +gen:suffix=".com"
-    // +gen:contains="www"
-    // +gen:pattern=`\d+(\w+){3,5}`
-    // +gen:number
-    // +gen:ip
-    // +gen:ipv4
-    // +gen:ipv6
-    // +gen:crontab
-    // +gen:uuid
-    // +gen:uri
-    // +gen:domain
-    string m = 1;
-}
-```
-
-> 注: string pattern 最好单独一行，以免和其他规则冲突
-
-数字类型的支持，包含 int32, int64, fixed32, fix64, float, double
-- required: 判断是否为 0
-- default: 字段为空时指定的默认值，(不可用 required 同时使用)
-- in, enum: 判断字段的值是否存在于指定的列表中
-- not_in: 判断字段的值是否在指定的列表之外
-- lt: 指定字段小于指定值
-- lte: 指定字段的小于等于指定值
-- gt: 指定字段大于指定值
-- gte: 指定字段大于等于指定值
-
-```protobuf
-message S {
-    // +gen:required
-    float a = 1;
-
-    // +gen:default=3.14
-    double pi = 2
-
-    // +gen:in=[1,2,3]
-    // +gen:enum=[2,3]
-    // +gen:not_in=[4,5]
-    int32 b = 3;
-
-    // +gen:ge=3
-    // +ggen:gte=4
-    // +gen:lte=9
-    // +gen:lt=10
-    int64 c = 4;
-}
-```
-
-`bytes` 类型的支持:
-- required: 判断字段的长度是否为0
-- min_bytes: 判断字段的最小字节数是否大于给定值
-- max_bytes: 判断字段的最大字节数是否小于给定值
-
-```protobuf
-message S {
-    // +gen:required
-    // +gen:min_bytes=10
-    // +gen:min_bytes=1024
-    bytes any = 1;
-}
-```
-
-repeated 类型的支持：repeated 类型的字段在 golang 中会被解析成切片。
-- required: 判断切片的长度是否为0
-- min_len: 判断切片的最小长度是否大于给定值
-- max_len: 判断切片的最大长度是否小于给定值
-
-```protobuf
-message S {
-    // +gen:required
-    // +gen:min_len=3
-    // +gen:max_len=5
-    repeated string = 1;
-}
-```
-
