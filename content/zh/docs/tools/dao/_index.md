@@ -134,6 +134,8 @@ func (m UserSchema) PrimaryKey() (string, interface{}, bool)
 func (m *UserSchema) FindPage(ctx context.Context, page, size int, exprs ...clause.Expression) ([]*User, error) 
 // 查询所有符合的记录
 func (m *UserSchema) FindAll(ctx context.Context, exprs ...clause.Expression) ([]*User, error) 
+// 查询所有软删除的记录
+func (m *UserSchema) FindDeleted(ctx context.Context, exprs ...clause.Expression) ([]*User, error) 
 // 查询首条符合的记录
 func (m *UserSchema) FindOne(ctx context.Context, exprs ...clause.Expression) (*User, error)
 // 插入一条记录
