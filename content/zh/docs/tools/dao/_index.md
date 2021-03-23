@@ -130,12 +130,14 @@ func (m *UserSchema) ToUser() *User
 func (UserSchema) TableName() string 
 // 主键信息，返回主键名称、值、是否为零值
 func (m UserSchema) PrimaryKey() (string, interface{}, bool)
-// 分页查询
-func (m *UserSchema) FindPage(ctx context.Context, page, size int, exprs ...clause.Expression) ([]*User, error) 
+// 分页查询，等同 FindAll 和 Count
+func (m *UserSchema) FindPage(ctx context.Context, page, size int, exprs ...clause.Expression) ([]*User, int64, error) 
 // 查询所有符合的记录
 func (m *UserSchema) FindAll(ctx context.Context, exprs ...clause.Expression) ([]*User, error) 
 // 查询所有软删除的记录
 func (m *UserSchema) FindDeleted(ctx context.Context, exprs ...clause.Expression) ([]*User, error) 
+// 查询符合的记录总量
+func (m *UserSchema) Count(ctx context.Context, exprs ...clause.Expression) (int64, error)
 // 查询首条符合的记录
 func (m *UserSchema) FindOne(ctx context.Context, exprs ...clause.Expression) (*User, error)
 // 插入一条记录
