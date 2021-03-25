@@ -301,7 +301,7 @@ func (m *UserOther) DaoDataType() string {
 #### 代码输出路径
 `protoc-gen-dao` 支持将CURD代码输出到指定路径
 ```protobuf
-// +output:github.com/lack-io/vine/testdata/db/dao;dao
+// +dao:output=github.com/lack-io/vine/testdata/db/dao;dao
 syntax = "protoc"
 ...
 ```
