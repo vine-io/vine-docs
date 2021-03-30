@@ -17,9 +17,9 @@ syntax = "proto3";
 
 package v1;
 
-// +dao:generate
+// +gen:dao
 message User {
-  // +dao:PK
+  // +gen:pk
   string id = 1;
 
   string name = 2;
@@ -134,8 +134,6 @@ func (m UserSchema) PrimaryKey() (string, interface{}, bool)
 func (m *UserSchema) FindPage(ctx context.Context, page, size int, exprs ...clause.Expression) ([]*User, int64, error) 
 // 查询所有符合的记录
 func (m *UserSchema) FindAll(ctx context.Context, exprs ...clause.Expression) ([]*User, error) 
-// 查询所有软删除的记录
-func (m *UserSchema) FindDeleted(ctx context.Context, exprs ...clause.Expression) ([]*User, error) 
 // 查询符合的记录总量
 func (m *UserSchema) Count(ctx context.Context, exprs ...clause.Expression) (int64, error)
 // 查询首条符合的记录
@@ -145,9 +143,7 @@ func (m *UserSchema) Create(ctx context.Context) (*User, error)
 // 更新记录
 func (m *UserSchema) Updates(ctx context.Context) (*User, error)
 // 软删除
-func (m *UserSchema) SoftDelete(ctx context.Context) error 
-// 直接删除记录
-func (m *UserSchema) Delete(ctx context.Context) error 
+func (m *UserSchema) Delete(ctx context.Context, soft) error 
 ```
 
 ### 类型转化
@@ -265,13 +261,13 @@ func (m *UserOther) DaoDataType() string {
     // slice 格式，查询slice包含指定项的记录
     if len(m.Following) != 0 {
 		for _, item := range m.Following {
-			exprs = append(exprs, dao.DefaultDialect.JSONBuild(tx, "following").Contains(item))
+			exprs = append(exprs, dao.DefaultDialect.JSONBuild("following").Tx(tx).Contains(item))
 		}
 	}
     // map 格式，查询kv符合条件的记录，key 类型必须为 string
 	if m.Tags != nil {
 		for k, v := range m.Tags {
-			exprs = append(exprs, dao.DefaultDialect.JSONBuild(tx, "tags").Equals(v, k))
+			exprs = append(exprs, dao.DefaultDialect.JSONBuild("tags").Tx(tx).Equals(v, k))
 		}
 	}
     // struct 格式，精确查询 JSON 
@@ -281,9 +277,9 @@ func (m *UserOther) DaoDataType() string {
 	if m.Other != nil {
 		for k, v := range dao.FieldPatch(m.Other) {
 			if v == nil {
-				exprs = append(exprs, dao.DefaultDialect.JSONBuild(tx, "other").HasKeys(strings.Split(k, ",")...))
+				exprs = append(exprs, dao.DefaultDialect.JSONBuild("other").Tx(tx).HasKeys(strings.Split(k, ",")...))
 			} else {
-				exprs = append(exprs, dao.DefaultDialect.JSONBuild(tx, "other").Equals(v, strings.Split(k, ",")...))
+				exprs = append(exprs, dao.DefaultDialect.JSONBuild("other").Tx(tx).Equals(v, strings.Split(k, ",")...))
 			}
 		}
 	}
@@ -292,10 +288,10 @@ func (m *UserOther) DaoDataType() string {
 
 ### 语法规则
 有效的注释有以下的规则:
-- 注释必须以 `+dao` 作为开头
+- 注释必须以 `+gen` 作为开头
 - 注释的内容必须紧贴对应的字段，中间不能有空行
 - 支持多行注释，也可以将多行合并成一行，并用 `;` 作为分隔符
-- 只有带 `+dao:generate` 注释的 message 才会生成 CURD 代码
+- 只有带 `+gen:dao` 注释的 message 才会生成 CURD 代码
 
 ### 语法支持
 #### 代码输出路径
@@ -305,17 +301,18 @@ func (m *UserOther) DaoDataType() string {
 syntax = "protoc"
 ...
 ```
-使用 `+output`为开头，写在 protobuf 文件开头，指定生成的路径(对应$GOPATH)和生成 package 名称。
+使用 `+dao:output=`为开头，写在 protobuf 文件头部，指定生成的路径(对应$GOPATH)和生成 package 名称。
 
 #### message 支持
 message 支持以下注释:
 ```protobuf
-// +dao:generate  => 只有标识该注释的 message 才会生成 CURD 代码
+// +gen:dao  => 只有标识该注释的 message 才会生成 CURD 代码
 ```
 
 #### field 支持
 ```protobuf
-// +dao:PK   => 指定字段为主键(必须), 可以是 string 和 数字, 当 int 类型时自增 
+// +gen:pk   => 指定字段为主键(必须), 可以是 string 和 数字, 当 int 类型时自增 
 //              当多个 PK 字段存在时，默认选择第一个。
+// +gen:inline => 只能用在 message field 中，将 message 的字段直接解析为父 message 的字段
 ...
 ```
