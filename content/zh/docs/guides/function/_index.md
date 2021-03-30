@@ -93,14 +93,14 @@ message Response {
 这里我们定义一个 Greeter 服务，提供 Hello 方法。Request 和 Response 是 Hello 方法的入参和返回值。
 
 ## 3.生成 API 接口
-使用 protoc、protoc-gen-gogofaster、protoc-gen-vine 来生成 protobuf code
+使用 protoc、protoc-gen-gogo、protoc-gen-vine 来生成 protobuf code
 ```bash
 go get github.com/gogo/protobuf
-go get github.com/lack-io/vine/cmd/protoc-gen-gogofaster
+go get github.com/lack-io/vine/cmd/protoc-gen-gogo
 go get github.com/lack-io/vine/cmd/protoc-gen-vine
 ```
 ```bash
-protoc -I=$GOPATH/src -I=$GOPATH/src/github.com/gogo/protobuf/protobuf --gogofaster_out=plugins=grpc:. --vine_out=. greeter.proto
+protoc -I=$GOPATH/src -I=$GOPATH/src/github.com/gogo/protobuf/protobuf --gogo_out=:. --vine_out=. greeter.proto
 ```
 它会生成以下代码:
 

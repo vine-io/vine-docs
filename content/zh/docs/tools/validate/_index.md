@@ -35,11 +35,15 @@ go get github.com/lack-io/vine/cmd/protoc-gen-validator
 
 ### 3.生成 Validate() 方法
 ```bash
-protoc -I=$GOPATH/src --gogofaster_out=plugins=grpc:.  --validator_out=:. proto/validator.proto
+protoc -I=$GOPATH/src --gogo_out=:.  --validator_out=:. proto/validator.proto
 ```
 执行完成后生成以下代码:
 ```golang
-func (m *Person) Validate() error {
+func (m *Person) Valdiate() error {
+    return m.ValidateE("")
+}
+
+func (m *Person) ValidateE() error {
 	errs := make([]error, 0)
 	if len(m.Name) != 0 {
 		if !(len(m.Name) >= 4) {
@@ -244,3 +248,62 @@ message S {
 }
 ```
 
+### 内嵌 message
+`protoc-gen-validator` 支持解析内嵌 message, 使用 `+gen:inline` 可以将子 message 中的字段嵌入该 message。实例如下:
+```protobuf
+message Meta {
+  // +gen:required
+  string name = 1;
+  // +gen:required
+  int64 id = 2;
+}
+
+message Request {
+  // +gen:inline
+  // +gen:required
+  Meta meta = 1;
+  string data = 2;
+}
+```
+解析出来的内容如下:
+```protobuf
+
+func (m *Meta) Validate() error {
+	return m.ValidateE("")
+}
+
+func (m *Meta) ValidateE(prefix string) error {
+	errs := make([]error, 0)
+	if len(m.Name) == 0 {
+		errs = append(errs, fmt.Errorf("field '%sname' is required", prefix))
+	}
+	if int64(m.Id) == 0 {
+		errs = append(errs, fmt.Errorf("field '%sid' is required", prefix))
+	}
+	return is.MargeErr(errs...)
+}
+
+func (m *Request) Validate() error {
+	return m.ValidateE("")
+}
+
+func (m *Request) ValidateE(prefix string) error {
+	errs := make([]error, 0)
+	if len(m.Name) == 0 {
+		errs = append(errs, fmt.Errorf("field '%sname' is required", prefix))
+	}
+	if int64(m.Id) == 0 {
+		errs = append(errs, fmt.Errorf("field '%sid' is required", prefix))
+	}
+	return is.MargeErr(errs...)
+}
+
+func (m *Response) Validate() error {
+	return m.ValidateE("")
+}
+
+func (m *Response) ValidateE(prefix string) error {
+	errs := make([]error, 0)
+	return is.MargeErr(errs...)
+}
+```
