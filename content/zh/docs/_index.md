@@ -48,113 +48,110 @@ Vine 遵守 Apache 2.0 开源许可.
 ### 安装
 
 ```bash
-go get github.com/gogo/protobuf
-go get github.com/lack-io/vine/cmd/protoc-gen-gogo
-go get github.com/lack-io/vine/cmd/protoc-gen-vine
-go get github.com/lack-io/cmd/vine
+$ go get github.com/lack-io/vine/cmd/vine
 ```
-
-### proto 文件
-```protobuf
-syntax = "proto3";
-
-package testdata;
-
-// +gen:openapi
-service Rpc {
-  // +gen:post=/api/{name}
-  // +gen:body=*
-  rpc HelloWorld(HelloWorldRequest) returns (HelloWorldResponse) {};
-}
-
-message HelloWorldRequest {
-  string name = 1;
-}
-
-message HelloWorldResponse {
-  string reply = 1;
-}
-```
-
-生成 golang 代码
-
+### 初始化项目
+创建项目目录
 ```bash
-protoc -I=. \
-  -I=$GOPATH/src \
-  -I=$GOPATH/src/github.com/gogo/protobuf/protobuf \
-  --gogo_out=:. --vine_out=. example/proto/test.proto
+$ mkdir -p $GOPATH/src/example
 ```
-
-### 服务端
-```go
-package main
-
-import (
-	"context"
-	"fmt"
-
-	"github.com/lack-io/vine"
-	pb "example/proto"
-)
-
-type HelloWorld struct {
-}
-
-func (t *HelloWorld) HelloWorld(ctx context.Context, req *pb.HelloWorldRequest, rsp *pb.HelloWorldResponse) error {
-	fmt.Println("get echo request")
-	rsp.Reply = "hello " + req.Name
-	return nil
-}
-
-func main() {
-	service := vine.NewService(
-		vine.Name("tt"),
-		vine.Address("127.0.0.1:9000"),
-	)
-
-	service.Init()
-
-	pb.RegisterRpcHandler(service.Server(), new(HelloWorld))
-
-	service.Run()
-}
-```
-
-### 客户端
-```go
-package main
-
-import (
-	"context"
-	"fmt"
-
-	"github.com/lack-io/vine"
-	pb "example/proto"
-)
-
-func main() {
-	srv := vine.NewService(vine.Name("tt"))
-	service := pb.NewRpcService("tt", srv.Client())
-
-	rsp, err := service.HelloWorld(context.TODO(), &pb.HelloWorldRequest{Name: "world"})
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	fmt.Printf("result: %v\n", rsp)
-}
-
-```
-
-### 启动 api
-
+初始化目录
 ```bash
-vine api --handler=rpc
+$ vine init --cluster
+Creating resource  in $GOPATH/src/example
+
+.
+├── vine.toml
+├── README.md
+├── .gitignore
+└── go.mod
 ```
-
-### 验证
-
+### 创建服务 echo 
 ```bash
-curl -H 'Content-Type: application/json' -d '{}' http://localhost:8080/api/vine
+$ vine new service echo   
+Creating resource echo in $GOPATH/src/example
+
+.
+├── cmd
+│   └── echo
+│       └── main.go
+├── pkg
+│   ├── runtime
+│   │   └── doc.go
+│   └── echo
+│       ├── plugin.go
+│       ├── app.go
+│       ├── server
+│       │   └── echo.go
+│       ├── service
+│       │   ├── echo.go
+│       │   └── wire.go
+│       └── dao
+│           └── echo.go
+├── deploy
+│   ├── docker
+│   │   └── echo
+│   │       └── Dockerfile
+│   ├── config
+│   │   └── echo.ini
+│   └── systemed
+│       └── echo.service
+├── proto
+│   └── service
+│       └── echo
+│           └── v1
+│               └── echo.proto
+└── vine.toml
+
+
+download protoc zip packages (protoc-$VERSION-$PLATFORM.zip) and install:
+
+visit https://github.com/protocolbuffers/protobuf/releases
+
+download protobuf for vine:
+
+cd example
+
+install dependencies:
+        go get github.com/gogo/protobuf
+        go get github.com/lack-io/vine/cmd/protoc-gen-gogo
+        go get github.com/lack-io/vine/cmd/protoc-gen-vine
+        go get github.com/lack-io/vine/cmd/protoc-gen-validator
+        go get github.com/lack-io/vine/cmd/protoc-gen-deepcopy
+        go get github.com/lack-io/vine/cmd/protoc-gen-dao
+
+cd example
+        vine build echo
 ```
+### 编译运行 echo
+先要成 proto 文件
+```bash
+$ vine build proto                                        
+change directory $GOPATH/src: 
+protoc -I=$GOPATH/src --gogo_out=:. --vine_out=:. --validator_out=:. example/proto/service/echo/v1/echo.proto
+```
+编译 echo 服务
+```bash
+$ go mod vendor
+$ vine build service --output=_output/echo  echo
+```
+运行服务
+```bash
+$ ./output/echo
+```
+### 添加网关服务
+新建服务
+```bash
+$ vine new gateway api
+```
+编译
+```bash
+$ go mod vendor
+$ vine build service --output=_output/api api
+```
+启动 api
+```bash
+$ ./_output/api --enable-openapi
+```
+浏览器访问地址 [127.0.0.1:8080/openapi-ui/](127.0.0.1:8080/openapi-ui/)
 

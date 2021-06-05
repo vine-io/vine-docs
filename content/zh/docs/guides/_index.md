@@ -6,6 +6,7 @@ description: >
   我们将在这里学会如何创建服务，以及如何使用 vine 命令行工具管理项目。
 ---
 
+**Service** 是其他主要组件服务的顶层接口，它将所有底层包包裹在一个更加方便的接口中。
 ```go
 type Service interface {
 	// 服务名称
@@ -25,7 +26,8 @@ type Service interface {
 }
 ```
 
-## 1.初始化
+## 开始
+### 1.初始化
 
 使用 `service.NewService` 创建服务
 ```go
@@ -77,7 +79,7 @@ import (
 ```
 `service.Init` 支持的选择看[这里](https://pkg.go.dev/github.com/lack-io/vine/service/config/cmd#pkg-variables)
 
-## 2.定义 API
+### 2.定义 API
 使用 protobuf 文件定义服务的 API 接口。它可以能便利的提供严谨的 API 接口，同时为服务端和客户端提供具体的接口。
 greeter.proto
 ```protobuf
@@ -97,7 +99,7 @@ message Response {
 ```
 这里我们定义一个 Greeter 服务，提供 Hello 方法。Request 和 Response 是 Hello 方法的入参和返回值。
 
-## 3.生成 API 接口
+### 3.生成 API 接口
 你需要以下的工具来生成 protobuf 代码
 - [protoc](https://github.com/protocolbuffers/protobuf)
 - [protoc-gen-gogo](https://github.com/lack-io/vine/tree/master/cmd/protoc-gen-gogo)
@@ -168,7 +170,7 @@ func RegisterGreeterHandler(s server.Server, hdlr GreeterHandler) {
 }
 ```
 
-## 4.实现 handler
+### 4.实现 handler
 
 handler.go
 ```go
@@ -191,7 +193,7 @@ service = vine.NewService(
 pb.RegisterGreeterHandler(service.Server, new(Greeter))
 ```
 
-## 5.启动服务
+### 5.启动服务
 服务通过调用 `service.Run` 来启动。它会绑定到配置参数提供的地址上并且监听请求。
 服务启动时会通过 registry 组件注册服务，在接收到 kill 信号时注销服务。
 
@@ -201,7 +203,7 @@ if err := service.Run(); err != nil {
 }
 ```
 
-## 6.完整的服务端代码
+### 6.完整的服务端代码
 ```go
 package main
 
@@ -235,7 +237,7 @@ func main() {
 }
 ```
 
-## 客户端
+### 客户端
 查询上面的服务，可以使用以下的代码
 ```go
 // 创建 greeter 服务的客户端
@@ -252,3 +254,111 @@ if err != nil {
 
 fmt.Println(rsp.Greeting)
 ```
+## 使用 vine 工具管理项目
+
+### 初始化项目
+创建项目目录
+```bash
+$ mkdir -p $GOPATH/src/example
+```
+初始化目录
+```bash
+$ vine init --cluster
+Creating resource  in $GOPATH/src/example
+
+.
+├── vine.toml
+├── README.md
+├── .gitignore
+└── go.mod
+```
+### 创建服务 echo 
+```bash
+$ vine new service echo   
+Creating resource echo in $GOPATH/src/example
+
+.
+├── cmd
+│   └── echo
+│       └── main.go
+├── pkg
+│   ├── runtime
+│   │   └── doc.go
+│   └── echo
+│       ├── plugin.go
+│       ├── app.go
+│       ├── server
+│       │   └── echo.go
+│       ├── service
+│       │   ├── echo.go
+│       │   └── wire.go
+│       └── dao
+│           └── echo.go
+├── deploy
+│   ├── docker
+│   │   └── echo
+│   │       └── Dockerfile
+│   ├── config
+│   │   └── echo.ini
+│   └── systemed
+│       └── echo.service
+├── proto
+│   └── service
+│       └── echo
+│           └── v1
+│               └── echo.proto
+└── vine.toml
+
+
+download protoc zip packages (protoc-$VERSION-$PLATFORM.zip) and install:
+
+visit https://github.com/protocolbuffers/protobuf/releases
+
+download protobuf for vine:
+
+cd example
+
+install dependencies:
+        go get github.com/gogo/protobuf
+        go get github.com/lack-io/vine/cmd/protoc-gen-gogo
+        go get github.com/lack-io/vine/cmd/protoc-gen-vine
+        go get github.com/lack-io/vine/cmd/protoc-gen-validator
+        go get github.com/lack-io/vine/cmd/protoc-gen-deepcopy
+        go get github.com/lack-io/vine/cmd/protoc-gen-dao
+
+cd example
+        vine build echo
+```
+### 编译运行 echo
+先要成 proto 文件
+```bash
+$ vine build proto                                        
+change directory $GOPATH/src: 
+protoc -I=$GOPATH/src --gogo_out=:. --vine_out=:. --validator_out=:. example/proto/service/echo/v1/echo.proto
+```
+编译 echo 服务
+```bash
+$ go mod vendor
+$ vine build service --output=_output/echo  echo
+```
+运行服务
+```bash
+$ ./output/echo
+```
+### 添加网关服务
+新建服务
+```bash
+$ vine new gateway api
+```
+编译
+```bash
+$ go mod vendor
+$ vine build service --output=_output/api api
+```
+启动 api
+```bash
+$ ./_output/api --enable-openapi
+```
+浏览器访问地址 [127.0.0.1:8080/openapi-ui/](127.0.0.1:8080/openapi-ui/)
+
+关于 `vine` 命令行工具更加具体的内容可以参考 [这里](https://lack-io.github.io/vine/docs/tools/vine/) 
