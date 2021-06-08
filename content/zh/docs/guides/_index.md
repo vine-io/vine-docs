@@ -319,6 +319,7 @@ download protobuf for vine:
 cd example
 
 install dependencies:
+        go get github.com/google/wire/cmd/wire
         go get github.com/gogo/protobuf
         go get github.com/lack-io/vine/cmd/protoc-gen-gogo
         go get github.com/lack-io/vine/cmd/protoc-gen-vine
