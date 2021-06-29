@@ -300,7 +300,7 @@ Creating resource echo in $GOPATH/src/example
 │   │       └── Dockerfile
 │   ├── config
 │   │   └── echo.ini
-│   └── systemed
+│   └── systemd
 │       └── echo.service
 ├── proto
 │   └── service
