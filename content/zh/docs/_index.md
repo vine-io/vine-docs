@@ -7,7 +7,7 @@ menu:
     weight: 20
 ---
 
-[![License](https://img.shields.io/:license-apache-blue.svg)](https://opensource.org/licenses/Apache-2.0) [![Go.Dev reference](https://img.shields.io/badge/go.dev-reference-007d9c?logo=go&logoColor=white&style=flat-square)](https://pkg.go.dev/github.com/lack/vine?tab=doc) [![Travis CI](https://api.travis-ci.org/lack-io/vine.svg?branch=master)](https://travis-ci.org/lack-io/vine) [![Go Report Card](https://goreportcard.com/badge/lack-io/vine)](https://goreportcard.com/report/github.com/lack-io/vine)
+[![License](https://img.shields.io/:license-apache-blue.svg)](https://opensource.org/licenses/Apache-2.0) [![Go.Dev reference](https://img.shields.io/badge/go.dev-reference-007d9c?logo=go&logoColor=white&style=flat-square)](https://pkg.go.dev/github.com/lack/vine?tab=doc) [![Travis CI](https://api.travis-ci.org/vine-io/vine.svg?branch=master)](https://travis-ci.org/vine-io/vine) [![Go Report Card](https://goreportcard.com/badge/vine-io/vine)](https://goreportcard.com/report/github.com/vine-io/vine)
 
 Vine (*/vaɪn/*) 一套简单、高效、可插拔的分布式 RPC 框架。
 
@@ -37,7 +37,7 @@ Vine (*/vaɪn/*) 一套简单、高效、可插拔的分布式 RPC 框架。
 
 - **同步 (Synchronization)** - 分布式系统通常以最终一致性的方式构建。内置的 **Sync** 接口实现分布式锁和领导选举。
 
-- **可插拔接口 (Pluggable Interfaces)** - 得益于 Go 语言的抽象特性。 **Vine** 为每个模块提供抽象接口，正因为如此，这些接口都是可插拔的。可以在 [github.com/lack-io/plugins](https://github.com/lack-io/plugins) 查询你需要的插件。
+- **可插拔接口 (Pluggable Interfaces)** - 得益于 Go 语言的抽象特性。 **Vine** 为每个模块提供抽象接口，正因为如此，这些接口都是可插拔的。可以在 [github.com/vine-io/plugins](https://github.com/vine-io/plugins) 查询你需要的插件。
 
 ## 许可
 
@@ -48,7 +48,7 @@ Vine 遵守 Apache 2.0 开源许可.
 ### 安装
 
 ```bash
-$ go get github.com/lack-io/vine/cmd/vine
+$ go get github.com/vine-io/vine/cmd/vine
 ```
 ### 初始化项目
 创建项目目录
@@ -114,11 +114,11 @@ cd example
 
 install dependencies:
         go get github.com/gogo/protobuf
-        go get github.com/lack-io/vine/cmd/protoc-gen-gogo
-        go get github.com/lack-io/vine/cmd/protoc-gen-vine
-        go get github.com/lack-io/vine/cmd/protoc-gen-validator
-        go get github.com/lack-io/vine/cmd/protoc-gen-deepcopy
-        go get github.com/lack-io/vine/cmd/protoc-gen-dao
+        go get github.com/vine-io/vine/cmd/protoc-gen-gogo
+        go get github.com/vine-io/vine/cmd/protoc-gen-vine
+        go get github.com/vine-io/vine/cmd/protoc-gen-validator
+        go get github.com/vine-io/vine/cmd/protoc-gen-deepcopy
+        go get github.com/vine-io/vine/cmd/protoc-gen-dao
 
 cd example
         vine build echo

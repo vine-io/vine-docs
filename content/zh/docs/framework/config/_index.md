@@ -142,7 +142,7 @@ json 配置实例：
 ### 创建 Config
 创建一个新 **Config**
 ```go
-import "github.com/lack-io/vine/services/config"
+import "github.com/vine-io/vine/services/config"
 
 conf := config.NewConfig()
 ```
@@ -150,7 +150,7 @@ conf := config.NewConfig()
 ### 加载文件
 从文件加载配置，根据文件扩展名来确定配置格式。
 ```go
-import "github.com/lack-io/vine/services/config"
+import "github.com/vine-io/vine/services/config"
 
 // 加载 json 配置文件
 config.LoadFile("/tmp/config.json")
@@ -161,10 +161,10 @@ config.LoadFile("/tmp/config.json")
 package main
 
 import (
-	"github.com/lack-io/vine/service/config"
-	"github.com/lack-io/vine/service/config/encoder/toml"
-	"github.com/lack-io/vine/service/config/source"
-	"github.com/lack-io/vine/service/config/source/file"
+	"github.com/vine-io/vine/service/config"
+	"github.com/vine-io/vine/service/config/encoder/toml"
+	"github.com/vine-io/vine/service/config/source"
+	"github.com/vine-io/vine/service/config/source/file"
 )
 
 func main() {

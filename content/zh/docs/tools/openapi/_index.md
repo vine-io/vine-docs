@@ -9,7 +9,7 @@ description: >
 
 
 ## 概述
-*Vine* 内部集成 openapi3.0，`protoc-gen-vine` 通过识别 protobuf 文件的注释生成 Openapi3.0 文档。类似 [Validator](https://lack-io.github.io/vine/docs/tools/validate/)。 
+*Vine* 内部集成 openapi3.0，`protoc-gen-vine` 通过识别 protobuf 文件的注释生成 Openapi3.0 文档。类似 [Validator](https://vine-io.github.io/vine/docs/tools/validate/)。 
 
 ## 使用
 ### 1.先编写 helloworld.proto 文件
@@ -17,9 +17,9 @@ description: >
 syntax = "proto3";
 
 package testdata;
-option go_package = "github.com/lack-io/vine/testdata/proto;testdata";
+option go_package = "github.com/vine-io/vine/testdata/proto;testdata";
 
-import "github.com/lack-io/vine/proto/api/api.proto";
+import "github.com/vine-io/vine/proto/api/api.proto";
 
 // +gen:openapi
 // +gen:term_name=vine
@@ -58,7 +58,7 @@ message HelloWorldResponse {
 ```
 ### 2.安装 protoc-gen-vine
 ```bash
-go get github.com/lack-io/vine/cmd/protoc-gen-vine
+go get github.com/vine-io/vine/cmd/protoc-gen-vine
 ```
 
 ### 3.生成 swagger 文档

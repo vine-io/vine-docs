@@ -1,11 +1,11 @@
 # vine-docs
 
-`vine-docs` [vine](https://github.com/lack-io/vine) 的项目文档
+`vine-docs` [vine](https://github.com/vine-io/vine) 的项目文档
 
 # 下载
 
 ```bash
-git clone https://github.com/lack-io/vine-docs
+git clone https://github.com/vine-io/vine-docs
 git submodule update --init --recursive
 ```
 

@@ -10,7 +10,7 @@ description: >
 ## 概述
 **Vine** 构建在 Go 接口之上。因此这些接口的实现是可插拔的。
 
-默认情况下，**Vine** 只提供核心上每个接口的几个实现，但它完全是可插拔的。而额外的实现保存在 [plugins](https://github.com/lack-io/plugins)。
+默认情况下，**Vine** 只提供核心上每个接口的几个实现，但它完全是可插拔的。而额外的实现保存在 [plugins](https://github.com/vine-io/plugins)。
 
 ## 添加插件
 
@@ -21,11 +21,11 @@ package main
 
 import (
     // consul registry
-    _ "github.com/lack-io/plugins/registry/consul"
+    _ "github.com/vine-io/plugins/registry/consul"
     // rabbitmq transport
-    _ "github.com/lack-io/plugins/transport/rabbitmq"
+    _ "github.com/vine-io/plugins/transport/rabbitmq"
     // kafka broker
-    _ "github.com/lack-io/plugins/broker/kafka"
+    _ "github.com/vine-io/plugins/broker/kafka"
 )
 ```
 
@@ -49,14 +49,14 @@ VINE_REGISTRY=consule VINE_TRANSPORT=rabbitmq VINE_BROKER=kafka service
 package main
 
 import (
-    "github.com/lack-io/vine"
+    "github.com/vine-io/vine"
 
     // consul registry
-    "github.com/lack-io/plugins/registry/consul"
+    "github.com/vine-io/plugins/registry/consul"
     // rabbitmq transport
-    "github.com/lack-io/plugins/transport/rabbitmq"
+    "github.com/vine-io/plugins/transport/rabbitmq"
     // kafka broker
-    "github.com/lack-io/plugins/broker/kafka"
+    "github.com/vine-io/plugins/broker/kafka"
 )
 
 func main() {
@@ -81,7 +81,7 @@ func main() {
 
 插件是一个建立在 Go 接口上的概念。每个包都维护一个高级接口抽象。只需实现接口并将其作为服务选项传递给它即可.
 
-服务发现接口称为 [Registry](https://pkg.go.dev/github.com/lack-io/vine/service/registry#Registry). 实现此接口的任何内容都可以用作 **Registry**。这同样适用于其他包.
+服务发现接口称为 [Registry](https://pkg.go.dev/github.com/vine-io/vine/service/registry#Registry). 实现此接口的任何内容都可以用作 **Registry**。这同样适用于其他包.
 
 ```go
 type Registry interface {
@@ -95,4 +95,4 @@ type Registry interface {
 	String() string
 }
 ```
-查阅 [plugins](https://github.com/lack-io/plugins) 可以更好地了解实现细节。
+查阅 [plugins](https://github.com/vine-io/plugins) 可以更好地了解实现细节。

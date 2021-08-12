@@ -35,8 +35,8 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/lack-io/vine/service/registry"
-	regpb "github.com/lack-io/vine/proto/registry"
+	"github.com/vine-io/vine/service/registry"
+	regpb "github.com/vine-io/vine/proto/registry"
 )
 
 func main() {

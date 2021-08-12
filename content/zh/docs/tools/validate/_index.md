@@ -30,7 +30,7 @@ message Person {
 ```
 ### 2.安装 protoc-gen-validator
 ```bash
-go get github.com/lack-io/vine/cmd/protoc-gen-validator
+go get github.com/vine-io/vine/cmd/protoc-gen-validator
 ```
 
 ### 3.生成 Validate() 方法

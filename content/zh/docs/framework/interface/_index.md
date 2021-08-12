@@ -30,7 +30,7 @@ description: >
 - **tunnel** - vpn 隧道
 
 ## Broker
-**Broker** 为异步 pub/sub 子通讯提供消息代理的接口。这是事件驱动结构和微服务的基本要求之一。在默认情况下，我们使用 HTTP 协议实现 Broker 接口，以减少依赖。在 [plugins](github.com/lack-io/plugins) 中有许多 Broker 的实现。例如：RabbitMQ，NATS，NSQ等。
+**Broker** 为异步 pub/sub 子通讯提供消息代理的接口。这是事件驱动结构和微服务的基本要求之一。在默认情况下，我们使用 HTTP 协议实现 Broker 接口，以减少依赖。在 [plugins](github.com/vine-io/plugins) 中有许多 Broker 的实现。例如：RabbitMQ，NATS，NSQ等。
 
 ## Client
 

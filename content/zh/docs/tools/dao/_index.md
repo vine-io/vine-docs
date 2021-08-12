@@ -38,7 +38,7 @@ message Other {
 ```
 ### 2.安装 protoc-gen-dao
 ```bash
-go get github.com/lack-io/vine/cmd/protoc-gen-dao
+go get github.com/vine-io/vine/cmd/protoc-gen-dao
 ```
 
 ### 3.生成CURD代码
@@ -297,7 +297,7 @@ func (m *UserOther) DaoDataType() string {
 #### 代码输出路径
 `protoc-gen-dao` 支持将CURD代码输出到指定路径
 ```protobuf
-// +dao:output=github.com/lack-io/vine/testdata/db/dao;dao
+// +dao:output=github.com/vine-io/vine/testdata/db/dao;dao
 syntax = "protoc"
 ...
 ```

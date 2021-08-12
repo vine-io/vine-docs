@@ -31,7 +31,7 @@ type Service interface {
 
 使用 `service.NewService` 创建服务
 ```go
-import "github.com/lack-io/vine"
+import "github.com/vine-io/vine"
 
 service = vine.NewService()
 ```
@@ -44,7 +44,7 @@ service = vine.NewService(
 )
 ```
 
-支持的选项，请看[这里](https://pkg.go.dev/github.com/lack-io/vine/service#Option)
+支持的选项，请看[这里](https://pkg.go.dev/github.com/vine-io/vine/service#Option)
 
 **Vine** 同时支持使用`service.Flags` 来提供命令行参数:
 
@@ -53,8 +53,8 @@ service = vine.NewService(
 import (
 	"fmt"
 
-	"github.com/lack-io/cli"
-	"github.com/lack-io/vine"
+	"github.com/vine-io/cli"
+	"github.com/vine-io/vine"
 )
 
 	service := vine.NewService(
@@ -77,7 +77,7 @@ import (
 		}),
 	)
 ```
-`service.Init` 支持的选择看[这里](https://pkg.go.dev/github.com/lack-io/vine/service/config/cmd#pkg-variables)
+`service.Init` 支持的选择看[这里](https://pkg.go.dev/github.com/vine-io/vine/service/config/cmd#pkg-variables)
 
 ### 2.定义 API
 使用 protobuf 文件定义服务的 API 接口。它可以能便利的提供严谨的 API 接口，同时为服务端和客户端提供具体的接口。
@@ -102,14 +102,14 @@ message Response {
 ### 3.生成 API 接口
 你需要以下的工具来生成 protobuf 代码
 - [protoc](https://github.com/protocolbuffers/protobuf)
-- [protoc-gen-gogo](https://github.com/lack-io/vine/tree/master/cmd/protoc-gen-gogo)
-- [protoc-gen-vine](https://github.com/lack-io/vine/tree/master/cmd/protoc-gen-vine)
+- [protoc-gen-gogo](https://github.com/vine-io/vine/tree/master/cmd/protoc-gen-gogo)
+- [protoc-gen-vine](https://github.com/vine-io/vine/tree/master/cmd/protoc-gen-vine)
 
 使用 protoc、protoc-gen-gogo、protoc-gen-vine 来生成 protobuf code
 ```bash
 go get github.com/gogo/protobuf
-go get github.com/lack-io/vine/cmd/protoc-gen-gogo
-go get github.com/lack-io/vine/cmd/protoc-gen-vine
+go get github.com/vine-io/vine/cmd/protoc-gen-gogo
+go get github.com/vine-io/vine/cmd/protoc-gen-vine
 ```
 ```bash
 protoc -I=$GOPATH/src -I=$GOPATH/src/github.com/gogo/protobuf/protobuf --gogo_out=:. --vine_out=. greeter.proto
@@ -211,8 +211,8 @@ import (
         "log"
         "context"
 
-        "github.com/lack-io/vine"
-        pb "github.com/lack-io/examples/service/proto"
+        "github.com/vine-io/vine"
+        pb "github.com/vine-io/examples/service/proto"
 )
 
 type Greeter struct{}
@@ -321,11 +321,11 @@ cd example
 install dependencies:
         go get github.com/google/wire/cmd/wire
         go get github.com/gogo/protobuf
-        go get github.com/lack-io/vine/cmd/protoc-gen-gogo
-        go get github.com/lack-io/vine/cmd/protoc-gen-vine
-        go get github.com/lack-io/vine/cmd/protoc-gen-validator
-        go get github.com/lack-io/vine/cmd/protoc-gen-deepcopy
-        go get github.com/lack-io/vine/cmd/protoc-gen-dao
+        go get github.com/vine-io/vine/cmd/protoc-gen-gogo
+        go get github.com/vine-io/vine/cmd/protoc-gen-vine
+        go get github.com/vine-io/vine/cmd/protoc-gen-validator
+        go get github.com/vine-io/vine/cmd/protoc-gen-deepcopy
+        go get github.com/vine-io/vine/cmd/protoc-gen-dao
 
 cd example
         vine build echo
@@ -362,4 +362,4 @@ $ ./_output/api --enable-openapi
 ```
 浏览器访问地址 [127.0.0.1:8080/openapi-ui/](127.0.0.1:8080/openapi-ui/)
 
-关于 `vine` 命令行工具更加具体的内容可以参考 [这里](https://lack-io.github.io/vine/docs/tools/vine/) 
+关于 `vine` 命令行工具更加具体的内容可以参考 [这里](https://vine-io.github.io/vine/docs/tools/vine/) 

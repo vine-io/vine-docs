@@ -8,12 +8,12 @@ printf "\033[0;32mDeploying updates to GitHub...\033[0m\n"
 # Build the project.
 hugo -t docsy 
 
-vine=$GOPATH/src/github.com/lack-io/vine
+vine=$GOPATH/src/github.com/vine-io/vine
 if [[ -e "$vine" ]];then
     rm -fr $vine/docs/*
     mv public/* $vine/docs/
     rm -fr public
-    echo "update docs to github.com/lack-io/vine"
+    echo "update docs to github.com/vine-io/vine"
 fi
 
 # Add changes to git.

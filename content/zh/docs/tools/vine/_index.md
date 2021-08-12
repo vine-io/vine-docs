@@ -9,7 +9,7 @@ description: >
 
 ## 安装 vine 工具
 ```bash
-go get github.com/lack-io/vine/cmd/vine
+go get github.com/vine-io/vine/cmd/vine
 ```
 验证安装结果
 ```bash
@@ -111,11 +111,11 @@ cd example
 install dependencies:
    go get github.com/google/wire/cmd/wire
 	go get github.com/gogo/protobuf
-	go get github.com/lack-io/vine/cmd/protoc-gen-gogo
-	go get github.com/lack-io/vine/cmd/protoc-gen-vine
-	go get github.com/lack-io/vine/cmd/protoc-gen-validator
-	go get github.com/lack-io/vine/cmd/protoc-gen-deepcopy
-	go get github.com/lack-io/vine/cmd/protoc-gen-dao
+	go get github.com/vine-io/vine/cmd/protoc-gen-gogo
+	go get github.com/vine-io/vine/cmd/protoc-gen-vine
+	go get github.com/vine-io/vine/cmd/protoc-gen-validator
+	go get github.com/vine-io/vine/cmd/protoc-gen-deepcopy
+	go get github.com/vine-io/vine/cmd/protoc-gen-dao
 
 cd example
 	vine build example
@@ -125,11 +125,11 @@ cd example
 ```bash
 $ go get github.com/google/wire/cmd/wire
 $ go get github.com/gogo/protobuf
-$ go get github.com/lack-io/vine/cmd/protoc-gen-gogo
-$ go get github.com/lack-io/vine/cmd/protoc-gen-vine
-$ go get github.com/lack-io/vine/cmd/protoc-gen-validator
-$ go get github.com/lack-io/vine/cmd/protoc-gen-deepcopy
-$ go get github.com/lack-io/vine/cmd/protoc-gen-dao
+$ go get github.com/vine-io/vine/cmd/protoc-gen-gogo
+$ go get github.com/vine-io/vine/cmd/protoc-gen-vine
+$ go get github.com/vine-io/vine/cmd/protoc-gen-validator
+$ go get github.com/vine-io/vine/cmd/protoc-gen-deepcopy
+$ go get github.com/vine-io/vine/cmd/protoc-gen-dao
 ```
 ### 编译项目
 生成 `*.pb.go` 代码:
