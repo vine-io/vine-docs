@@ -1,8 +1,8 @@
 ---
-title: "OpenAPI"
+title: "protoc-gen-vine"
 date: 2021-01-25T18:42:52+08:00
 draft: false
-weight: 2
+weight: 4
 description: >
   *OpenAPI* 通过 `protoc-gen-vine` 集成 openapi3.0。
 ---

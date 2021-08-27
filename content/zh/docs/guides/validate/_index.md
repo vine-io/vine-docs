@@ -1,8 +1,8 @@
 ---
-title: "Validate"
+title: "protoc-gen-validator"
 date: 2021-01-18T11:11:29+08:00
 draft: false
-weight: 1
+weight: 5
 description: >
   *Validate* 通过 `protoc-gen-validator` 生成 `Validate()` 接口，减少非业务代码的编写。
 ---

@@ -1,10 +1,9 @@
 ---
-title: "配置"
+title: "配置中心"
 date: 2020-12-29T14:56:14+08:00
 draft: false
-weight: 5
+weight: 60
 description: >
-  **Config** 是一个可插拔的动态配置库
 ---
 
 ## 概述

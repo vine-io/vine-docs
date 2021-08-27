@@ -1,8 +1,8 @@
 ---
-title: "Vine"
+title: "Vine 工具"
 date: 2021-06-04T17:08:23+08:00
 draft: false
-weight: 1
+weight: 3
 description: >
   在 **vine** 框架下我们提供一套命令行管理工具，用来管理项目和实现与 **vine** 服务的交互
 ---

@@ -2,9 +2,8 @@
 title: "订阅发布"
 date: 2020-12-29T14:59:08+08:00
 draft: false
-weight: 9
+weight: 20
 description: >
-  用 **Broker** 构建微服务的发布订阅事件驱动
 ---
 
 ## 概述

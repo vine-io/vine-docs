@@ -1,11 +1,12 @@
 ---
-title: "插件"
-date: 2020-12-29T14:56:43+08:00
+title: "第三方插件"
+date: 2021-08-27T09:08:02+08:00
 draft: false
-weight: 4
+weight: 5
 description: >
-  **Vine** 是一个可插拔的框架。
+  
 ---
+
 
 ## 概述
 **Vine** 构建在 Go 接口之上。因此这些接口的实现是可插拔的。
@@ -96,3 +97,4 @@ type Registry interface {
 }
 ```
 查阅 [plugins](https://github.com/vine-io/plugins) 可以更好地了解实现细节。
+

@@ -1,8 +1,8 @@
 ---
-title: "Dao"
+title: "protoc-gen-dao"
 date: 2021-01-18T11:11:29+08:00
 draft: false
-weight: 3
+weight: 7
 description: >
   *Dao* 通过 `protoc-gen-dao` 生成数据库CURD代码。
 ---
