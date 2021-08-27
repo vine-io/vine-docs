@@ -5,101 +5,43 @@ weight: 2
 description: >
 ---
 
-**Service** 是其他主要组件服务的顶层接口，它将所有底层包包裹在一个更加方便的接口中。
-```go
-type Service interface {
-	// 服务名称
-	Name() string
-	// 初始化选项
-	Init(...Option)
-	// 返回当前选项
-	Options() Options
-	// 返回服务的 Client 接口
-	Client() client.Client
-	// 返回服务的 Server 接口
-	Server() server.Server
-	// 启动服务
-	Run() error
-	// 实现 server.Server 接口
-	String() string
-}
+这里提供一个简单的实例，帮助用户快速了解 **Vine** 框架。
+
+## 定义接口
+
+### 新建项目
+新建目录保存相关代码:
+```bash
+$ mkdir $GOPATH/src/greet
 ```
+> 建议项目保存在 $GOPATH 下
 
-## 开始
-### 1.初始化
+### 新建 *.proto 文件
+**Vine** 内部使用 `gRPC` 作为服务端，`*.proto` 是 google 公司开源的一种数据交换协议，类似 `json`。关于 `protobuf` 更详细的语法可以参考[protobuf](https://developers.google.com/protocol-buffers/docs/gotutorial)。
 
-使用 `service.NewService` 创建服务
-```go
-import "github.com/vine-io/vine"
-
-service = vine.NewService()
-```
-
-创建时使用选项
-```go
-service = vine.NewService(
-    vine.Name("greeter"),
-    vine.Version("latest"),
-)
-```
-
-支持的选项，请看[这里](https://pkg.go.dev/github.com/vine-io/vine/service#Option)
-
-**Vine** 同时支持使用`service.Flags` 来提供命令行参数:
-
-```go
-
-import (
-	"fmt"
-
-	"github.com/vine-io/cli"
-	"github.com/vine-io/vine"
-)
-
-	service := vine.NewService(
-		vine.Flags(&cli.StringFlag{
-			Name:  "environment",
-			Usage: "The environment",
-		}),
-	)
-```
-使用 `service.Init` 解析参数，并且使用 `service.Action` 选项来访问参数：
-```go
-	service.Init(
-		vine.Action(func(c *cli.Context) error {
-			env := c.String("environment")
-			if len(env) > 0 {
-				fmt.Println("Environment set to", env)
-			}
-
-			return nil
-		}),
-	)
-```
-`service.Init` 支持的选择看[这里](https://pkg.go.dev/github.com/vine-io/vine/service/config/cmd#pkg-variables)
-
-### 2.定义 API
-使用 protobuf 文件定义服务的 API 接口。它可以能便利的提供严谨的 API 接口，同时为服务端和客户端提供具体的接口。
-greeter.proto
+这里我们新建 `greet.proto` 文件，内容如下:
 ```protobuf
+// mysite/proto/greet.proto
 syntax = "proto3";
 
+package greet;
+
 service Greeter {
-	rpc Hello(Request) returns (Response) {}
+  rpc Echo(EchoReq) returns (EchoRsp) {}
 }
 
-message Request {
-	string name = 1;
+message EchoReq {
+  string name = 1;
 }
 
-message Response {
-	string greeting = 2;
+message EchoRsp {
+  string greeting = 1;
 }
 ```
-这里我们定义一个 Greeter 服务，提供 Hello 方法。Request 和 Response 是 Hello 方法的入参和返回值。
+> 更多的关于 **Vine** 的语法规则可以参考 [protoc-gen-vine](/vine/docs/guides/openapi/)
 
-### 3.生成 API 接口
-你需要以下的工具来生成 protobuf 代码
+### 生成 API 接口
+你需要以下的工具来生成 proto 代码
 - [protoc](https://github.com/protocolbuffers/protobuf)
 - [protoc-gen-gogo](https://github.com/vine-io/vine/tree/master/cmd/protoc-gen-gogo)
 - [protoc-gen-vine](https://github.com/vine-io/vine/tree/master/cmd/protoc-gen-vine)
@@ -110,255 +52,185 @@ go get github.com/gogo/protobuf
 go get github.com/vine-io/vine/cmd/protoc-gen-gogo
 go get github.com/vine-io/vine/cmd/protoc-gen-vine
 ```
+使用命令生成 `greet.pb.go` 和 `greet.vine.go` 文件:
 ```bash
-protoc -I=$GOPATH/src -I=$GOPATH/src/github.com/gogo/protobuf/protobuf --gogo_out=:. --vine_out=. greeter.proto
+$ cd $GOPATH/src
+$ protoc -I=$GOPATH/src --gogo_out=:. --vine_out=:. mysite/proto/greet.proto
 ```
-它会生成以下代码:
+执行成功后会生成新的文件:
+```bash
+mysite
+└── proto
+    ├── greet.pb.go       # 通过 protoc-gen-gogo 插件生成，包含结构体和 gRPC 的接口
+    ├── greet.pb.vine.go  # 通过 protoc-gen-vine 插件生成，包含 Vine 框架接口
+    └── greet.proto
 
-```go
-type Request struct {
-	Name string `protobuf:"bytes,1,opt,name=name" json:"name,omitempty"`
-}
-
-type Response struct {
-	Greeting string `protobuf:"bytes,2,opt,name=greeting" json:"greeting,omitempty"`
-}
-
-// Client API for Greeter service
-
-type GreeterClient interface {
-	Hello(ctx context.Context, in *Request, opts ...client.CallOption) (*Response, error)
-}
-
-type greeterClient struct {
-	c           client.Client
-	serviceName string
-}
-
-func NewGreeterClient(serviceName string, c client.Client) GreeterClient {
-	if c == nil {
-		c = client.NewClient()
-	}
-	if len(serviceName) == 0 {
-		serviceName = "greeter"
-	}
-	return &greeterClient{
-		c:           c,
-		serviceName: serviceName,
-	}
-}
-
-func (c *greeterClient) Hello(ctx context.Context, in *Request, opts ...client.CallOption) (*Response, error) {
-	req := c.c.NewRequest(c.serviceName, "Greeter.Hello", in)
-	out := new(Response)
-	err := c.c.Call(ctx, req, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-// Server API for Greeter service
-
-type GreeterHandler interface {
-	Hello(context.Context, *Request, *Response) error
-}
-
-func RegisterGreeterHandler(s server.Server, hdlr GreeterHandler) {
-	s.Handle(s.NewHandler(&Greeter{hdlr}))
-}
 ```
-
-### 4.实现 handler
-
-handler.go
-```go
-import proto "github.com/vine/examples/service/proto"
-
-type Greeter struct{}
-
-func (g *Greeter) Hello(ctx context.Context, req *pb.Request, rsp *pb.Response) error {
-	rsp.Greeting = "Hello " + req.Name
-	return nil
-}
+## 定义服务
+### 实现 Vine 服务
+有了 proto 文件后，接下来就是编写服务端代码：
 ```
-这个 handler 将被注册为服务，就像 http.Handler.
-
-```go
-service = vine.NewService(
-    vine.Name("greeter"),
-)
-
-pb.RegisterGreeterHandler(service.Server, new(Greeter))
+$ mkdir -p server
+$ touch mysite/server/main.go
 ```
-
-### 5.启动服务
-服务通过调用 `service.Run` 来启动。它会绑定到配置参数提供的地址上并且监听请求。
-服务启动时会通过 registry 组件注册服务，在接收到 kill 信号时注销服务。
-
-```go
-if err := service.Run(); err != nil {
-    log.Fatal(err)
-}
-```
-
-### 6.完整的服务端代码
+服务端代码:
 ```go
 package main
 
 import (
-        "log"
-        "context"
+	"context"
+	"log"
 
-        "github.com/vine-io/vine"
-        pb "github.com/vine-io/examples/service/proto"
+	"github.com/vine-io/vine"
+	pb "mysite/proto"
 )
 
-type Greeter struct{}
+// greet 需要实现 pb.Greet 的接口
+type greet struct {}
 
-func (g *Greeter) Hello(ctx context.Context, req *pb.Request, rsp *pb.Response) error {
-        rsp.Greeting = "Hello " + req.Name
-        return nil
+func (g *greet) Echo(ctx context.Context, req *pb.EchoReq, rsp *pb.EchoRsp) error {
+	rsp.Greeting = "hello: " + req.Name
+	return nil
 }
 
 func main() {
-        service := vine.NewService(
-                vine.Name("greeter"),
-        )
+	// 构建新的服务
+	app := vine.NewService(
+		vine.Name("greet"),
+	)
 
-        service.Init()
+	// 服务初始化
+	app.Init()
 
-        pb.RegisterGreeterHandler(service.Server(), new(Greeter))
+	// 注册服务
+	if err := pb.RegisterGreeterHandler(app.Server(), &greet{}); err != nil {
+		log.Fatalf("register greet hander: %v", err)
+	}
 
-        if err := service.Run(); err != nil {
-                log.Fatal(err)
-        }
+	// 服务启动
+	if err := app.Run(); err != nil {
+		log.Fatalf("start greet server: %v", err)
+	}
 }
 ```
+这样一个简易的 **Vine** 服务就完成了。
 
-### 客户端
-查询上面的服务，可以使用以下的代码
+> 更多服务端的内容请参考 [内部服务](/vine/docs/component/server/)
+### 启动服务
+启动服务并绑定端口:
+```bash
+$ go run server/main.go
+2021-08-27 13:24:18  file=vine/service.go:171 level=info Starting [service] greet
+2021-08-27 13:24:18  file=vine/service.go:172 level=info service [version] latest
+2021-08-27 13:24:18  file=grpc/grpc.go:920 level=info Server [grpc] Listening on [::]:65235
+2021-08-27 13:24:18  file=grpc/grpc.go:761 level=info Registry [mdns] Registering node: greet-d4d5e1a8-1bc0-4387-8fb2-1b5eda59055e
+2021-08-27 13:24:18  file=mdns/mdns_registry.go:266 level=info [mdns] registry create new service with ip: 192.168.11.167 for: 192.168.11.167
+```
+如果用户没有指定 ip 和端口，则默认 ip 为 0.0.0.0，端口随机生成。
+
+> 关于 **Vine** 服务的命令行参数可以参考 [命令行参数](/vine/docs/component/cmd/)
+
+## 客户端
+接下来我们编写客户端的代码来请求服务端:
+```bash
+$ mkdir -p client
+$ touch client/main.go
+```
+客户端代码:
 ```go
-// 创建 greeter 服务的客户端
-greeter := pb.NewGreeterService("greeter", service.Client())
+package main
 
-// 请求 Greeter 的 Hello 方法
-rsp, err := greeter.Hello(context.TODO(), &pb.Request{
-	Name: "John",
-})
-if err != nil {
-	fmt.Println(err)
-	return
+import (
+	"context"
+
+	"github.com/vine-io/vine/core/client/grpc"
+	log "github.com/vine-io/vine/lib/logger"
+	pb "github.com/vine-io/vine/testdata/mysite/proto"
+)
+
+func main() {
+	// 选择 gRPC 客户端
+	cc := grpc.NewClient()
+	// 指定服务名称
+	client := pb.NewGreeterService("greet", cc)
+
+	// 请求 Greet.Echo 接口
+	rsp, err := client.Echo(context.TODO(), &pb.EchoReq{Name: "lack"})
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	log.Infof("greet result: %v", rsp.Greeting)
+}
+```
+执行命令输出如下:
+```bash
+$ go run client/main.go
+2021-08-27 13:24:41  file=client/main.go:20 level=info greet result: hello: lack
+```
+> 更多关于客户端的内容可以参考 [内部请求](/vine/docs/component/client/)
+
+## API 接口
+**Vine** 服务可以同时支持 `gRPC` 和 `Restful` 接口。
+
+### 修改 greet.proto 文件
+先修改 greet.proto 文件:
+```protobuf
+syntax = "proto3";
+
+package greet;
+
+// +gen:openapi
+service Greeter {
+  // +gen:get=/api/v1/echo
+  rpc Echo(EchoReq) returns (EchoRsp) {}
 }
 
-fmt.Println(rsp.Greeting)
-```
-## 使用 vine 工具管理项目
+message EchoReq {
+  string name = 1;
+}
 
-### 初始化项目
-创建项目目录
-```bash
-$ mkdir -p $GOPATH/src/example
+message EchoRsp {
+  string greeting = 1;
+}
 ```
-初始化目录
+重新生成 `greet.pb.vine.go` 文件:
 ```bash
-$ vine init --cluster
-Creating resource  in $GOPATH/src/example
-
-.
-├── vine.toml
-├── README.md
-├── .gitignore
-└── go.mod
+$ protoc -I=$GOPATH/src --vine_out=:.  github.com/vine-io/vine/testdata/mysite/proto/greet.proto
 ```
-### 创建服务 echo 
-```bash
-$ vine new service echo   
-Creating resource echo in $GOPATH/src/example
 
-.
-├── cmd
-│   └── echo
-│       └── main.go
-├── pkg
-│   ├── runtime
-│   │   └── doc.go
-│   └── echo
-│       ├── plugin.go
-│       ├── app.go
-│       ├── server
-│       │   └── echo.go
-│       ├── service
-│       │   ├── echo.go
-│       │   └── wire.go
-│       └── dao
-│           └── echo.go
-├── deploy
-│   ├── docker
-│   │   └── echo
-│   │       └── Dockerfile
-│   ├── config
-│   │   └── echo.ini
-│   └── systemd
-│       └── echo.service
+### 安装 `vine`:
+```bash
+$ go get github.com/vine-io/vine/cmd/vine
+```
+
+### 启动网关
+```bash
+$ vine api --handler=rpc --enable-openapi  
+2021-08-27 13:38:54  file=openapi/openapi.go:56 level=info Starting OpenAPI at /openapi-ui/
+2021-08-27 13:38:54  file=api/api.go:179 level=info Registering API RPC Handler at /
+2021-08-27 13:38:54  file=http/http.go:116 level=info HTTP API Listening on [::]:8080
+2021-08-27 13:38:54  file=vine/service.go:171 level=info Starting [service] go.vine.api
+2021-08-27 13:38:54  file=vine/service.go:172 level=info service [version] latest
+2021-08-27 13:38:54  file=grpc/grpc.go:920 level=info Server [grpc] Listening on [::]:50405
+2021-08-27 13:38:54  file=grpc/grpc.go:761 level=info Registry [mdns] Registering node: go.vine.api-b405ca1d-ba24-4470-a18e-b1feeb22c5f6
+2021-08-27 13:38:54  file=mdns/mdns_registry.go:266 level=info [mdns] registry create new service with ip: 192.168.11.167 for: 192.168.11.167
+```
+使用以下命令验证:
+```bash
+$ curl http://127.0.0.1:8080/api/v1/echo\?name\=lack
+{"greeting":"hello: lack"}%
+```
+
+完成的目录结构如下:
+```bash
+mysite
+├── client
+│   └── main.go
 ├── proto
-│   └── service
-│       └── echo
-│           └── v1
-│               └── echo.proto
-└── vine.toml
-
-
-download protoc zip packages (protoc-$VERSION-$PLATFORM.zip) and install:
-
-visit https://github.com/protocolbuffers/protobuf/releases
-
-download protobuf for vine:
-
-cd example
-
-install dependencies:
-        go get github.com/google/wire/cmd/wire
-        go get github.com/gogo/protobuf
-        go get github.com/vine-io/vine/cmd/protoc-gen-gogo
-        go get github.com/vine-io/vine/cmd/protoc-gen-vine
-        go get github.com/vine-io/vine/cmd/protoc-gen-validator
-        go get github.com/vine-io/vine/cmd/protoc-gen-deepcopy
-        go get github.com/vine-io/vine/cmd/protoc-gen-dao
-
-cd example
-        vine build echo
+│   ├── greet.pb.go
+│   ├── greet.pb.vine.go
+│   └── greet.proto
+└── server
+    └── main.go
 ```
-### 编译运行 echo
-先要成 proto 文件
-```bash
-$ vine build proto                                        
-change directory $GOPATH/src: 
-protoc -I=$GOPATH/src --gogo_out=:. --vine_out=:. --validator_out=:. example/proto/service/echo/v1/echo.proto
-```
-编译 echo 服务
-```bash
-$ go mod vendor
-$ vine build service --output=_output/echo  echo
-```
-运行服务
-```bash
-$ ./output/echo
-```
-### 添加网关服务
-新建服务
-```bash
-$ vine new gateway api
-```
-编译
-```bash
-$ go mod vendor
-$ vine build service --output=_output/api api
-```
-启动 api
-```bash
-$ ./_output/api --enable-openapi
-```
-浏览器访问地址 [127.0.0.1:8080/openapi-ui/](127.0.0.1:8080/openapi-ui/)
-
-关于 `vine` 命令行工具更加具体的内容可以参考 [这里](https://vine-io.github.io/vine/docs/tools/vine/) 
