@@ -1,5 +1,5 @@
 ---
-title: "第三方插件"
+title: "插件中心"
 date: 2021-08-27T09:08:02+08:00
 draft: false
 weight: 5
