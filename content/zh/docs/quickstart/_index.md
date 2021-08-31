@@ -12,7 +12,7 @@ description: >
 ### 新建项目
 新建目录保存相关代码:
 ```bash
-$ mkdir $GOPATH/src/greet
+mkdir $GOPATH/src/greet
 ```
 > 建议项目保存在 $GOPATH 下
 
@@ -54,8 +54,8 @@ go get github.com/vine-io/vine/cmd/protoc-gen-vine
 ```
 使用命令生成 `greet.pb.go` 和 `greet.vine.go` 文件:
 ```bash
-$ cd $GOPATH/src
-$ protoc -I=$GOPATH/src --gogo_out=:. --vine_out=:. mysite/proto/greet.proto
+cd $GOPATH/src
+protoc -I=$GOPATH/src --gogo_out=:. --vine_out=:. mysite/proto/greet.proto
 ```
 执行成功后会生成新的文件:
 ```bash
@@ -70,8 +70,8 @@ mysite
 ### 实现 Vine 服务
 有了 proto 文件后，接下来就是编写服务端代码：
 ```
-$ mkdir -p server
-$ touch mysite/server/main.go
+mkdir -p server
+touch mysite/server/main.go
 ```
 服务端代码:
 ```go
@@ -119,7 +119,7 @@ func main() {
 ### 启动服务
 启动服务并绑定端口:
 ```bash
-$ go run server/main.go
+go run server/main.go
 2021-08-27 13:24:18  file=vine/service.go:171 level=info Starting [service] greet
 2021-08-27 13:24:18  file=vine/service.go:172 level=info service [version] latest
 2021-08-27 13:24:18  file=grpc/grpc.go:920 level=info Server [grpc] Listening on [::]:65235
@@ -133,8 +133,8 @@ $ go run server/main.go
 ## 客户端
 接下来我们编写客户端的代码来请求服务端:
 ```bash
-$ mkdir -p client
-$ touch client/main.go
+mkdir -p client
+touch client/main.go
 ```
 客户端代码:
 ```go
@@ -165,7 +165,7 @@ func main() {
 ```
 执行命令输出如下:
 ```bash
-$ go run client/main.go
+go run client/main.go
 2021-08-27 13:24:41  file=client/main.go:20 level=info greet result: hello: lack
 ```
 > 更多关于客户端的内容可以参考 [内部请求](/vine/docs/component/client/)
@@ -196,17 +196,17 @@ message EchoRsp {
 ```
 重新生成 `greet.pb.vine.go` 文件:
 ```bash
-$ protoc -I=$GOPATH/src --vine_out=:.  github.com/vine-io/vine/testdata/mysite/proto/greet.proto
+protoc -I=$GOPATH/src --vine_out=:.  github.com/vine-io/vine/testdata/mysite/proto/greet.proto
 ```
 
 ### 安装 `vine`:
 ```bash
-$ go get github.com/vine-io/vine/cmd/vine
+go get github.com/vine-io/vine/cmd/vine
 ```
 
 ### 启动网关
 ```bash
-$ vine api --handler=rpc --enable-openapi  
+vine api --handler=rpc --enable-openapi  
 2021-08-27 13:38:54  file=openapi/openapi.go:56 level=info Starting OpenAPI at /openapi-ui/
 2021-08-27 13:38:54  file=api/api.go:179 level=info Registering API RPC Handler at /
 2021-08-27 13:38:54  file=http/http.go:116 level=info HTTP API Listening on [::]:8080
@@ -218,7 +218,7 @@ $ vine api --handler=rpc --enable-openapi
 ```
 使用以下命令验证:
 ```bash
-$ curl http://127.0.0.1:8080/api/v1/echo\?name\=lack
+curl http://127.0.0.1:8080/api/v1/echo\?name\=lack
 {"greeting":"hello: lack"}%
 ```
 
