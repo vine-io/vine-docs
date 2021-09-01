@@ -5,7 +5,6 @@ draft: false
 weight: 1
 description: >
 ---
-
 ## 概述
 
 ```go
@@ -15,11 +14,11 @@ description: >
 type Registry interface {
 	Init(...Option) error
 	Options() Options
-	Register(*regpb.Service, ...RegisterOption) error
-	Deregister(*regpb.Service, ...DeregisterOption) error
-	GetService(string, ...GetOption) ([]*regpb.Service, error)
-	ListServices(...ListOption) ([]*regpb.Service, error)
-	Watch(...WatchOption) (regpb.Watcher, error)
+	Register(*Service, ...RegisterOption) error
+	Deregister(*Service, ...DeregisterOption) error
+	GetService(string, ...GetOption) ([]*Service, error)
+	ListServices(...ListOption) ([]*Service, error)
+	Watch(...WatchOption) (Watcher, error)
 	String() string
 }
 ```
@@ -35,7 +34,6 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/vine-io/vine/service/registry"
-	regpb "github.com/vine-io/vine/proto/registry"
 )
 
 func main() {
@@ -45,17 +43,19 @@ func main() {
 	// initialize registry
 	r.Init()
 
-	s := &regpb.Service{
+	s := &registry.Service{
 		Name:     "go.vine.srv",
 		Version:  "1.0.0",
 		Metadata: map[string]string{},
-		Endpoints: []*regpb.Endpoint{{
-			Request: &regpb.Value{},
+		Endpoints: []*registry.Endpoint{{
+			Request: &registry.Value{},
 		}},
-		Nodes: []*regpb.Node{&regpb.Node{
-			Id:      uuid.New().String(),
-			Address: "127.0.0.1:1111",
-		}},
+		Nodes: []*registry.Node{
+			&registry.Node{
+				Id:      uuid.New().String(),
+				Address: "127.0.0.1:1111",
+			},
+		},
 	}
 
 	// registry service
