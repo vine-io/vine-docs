@@ -2,11 +2,10 @@
 title: "插件中心"
 date: 2021-08-27T09:08:02+08:00
 draft: false
-weight: 5
+weight: 6
 description: >
   
 ---
-
 ## 概述
 **Vine** 构建在 Go 接口之上。因此这些接口的实现是可插拔的。
 
