@@ -23,7 +23,7 @@ type Broker interface {
 }
 ```
 
-默认情况下，vine 实现点对点 http 代理，但可以通过 [plugins](https://github.com/vine-io/plugins) 替换实现。
+默认情况下，vine 实现点对点 http 代理，但可以通过 [plugins](https://github.com/vine-io/plugins/tree/main/broker) 替换实现。
 
 ## 发布消息
 使用 topic 名称和服务客户端创建一个新的发布者
@@ -46,7 +46,7 @@ func ProcessEvent(ctx context.Context, event *proto.Event) error {
 ```go
 vine.RegisterSubscriber("events", ProcessEvent)
 ```
-完整实例可以看 [example/pubsub](https://github.com/vine-io/vine-example/tree/main/pubsub)
+完整实例可以看 [example/pubsub](https://github.com/vine-io/examples/tree/main/pubsub)
 
 ## 单独使用 Broker 
 `Broker` 也可以单独使用：
