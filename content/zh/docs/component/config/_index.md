@@ -27,12 +27,100 @@ description: >
 ### Source
 `Source` 作为配置的读取来源。可以同时使用多个源。
 支持以下源:
-- cli : 从 CLI 标志读取
-- env : 从环境变量中读取
-- file : 从文件中读取
-- flag : 从标志中读取
-- memory : 从内存中读取
 
+cli : 从 CLI 标志读取
+```go
+func main() {
+    // New Service
+    service := vine.NewService(
+        vine.Name("example"),
+        vine.Flags(
+            cli.StringFlag{
+                Name: "database-address",
+                Value: "127.0.0.1",
+                Usage: "the db address",
+            },
+        ),
+    )
+
+    var clisrc source.Source
+
+    service.Init(
+        vine.Action(func(c *cli.Context) {
+            clisrc = cli.NewSource(
+                cli.Context(c),
+	    )
+            // Alternatively, just setup your config right here
+        }),
+    )
+    
+    // ... Load and use that source ...
+    conf := config.NewConfig()
+    conf.Load(clisrc)
+}
+```
+env : 从环境变量中读取
+```go
+src := env.NewSource(
+	// optionally specify prefix
+	env.WithPrefix("VINE"),
+)
+
+// Create new config
+conf := config.NewConfig()
+
+// Load env source
+conf.Load(src)
+```
+file : 从文件中读取
+```go
+func main() {
+	data := []byte(`{"foo": "bar"}`)
+	path := filepath.Join(os.TempDir(), fmt.Sprintf("file.%d", time.Now().UnixNano()))
+	fh, err := os.Create(path)
+	if err != nil {
+		t.Error(err)
+	}
+	defer func() {
+		fh.Close()
+		os.Remove(path)
+	}()
+
+	_, err = fh.Write(data)
+	if err != nil {
+		t.Error(err)
+	}
+
+	f := NewSource(WithPath(path))
+	c, err := f.Read()
+	if err != nil {
+		t.Error(err)
+	}
+}
+```
+flag : 从标志中读取
+```go
+flagSource := flag.NewSource(
+	// optionally enable reading of unset flags and their default
+	// values into config, defaults to false
+	IncludeUnset(true)
+)
+// Create new config
+conf := config.NewConfig()
+
+// Load flag source
+conf.Load(flagSource)
+```
+memory : 从内存中读取
+```go
+memorySource := memory.NewSource(
+	memory.WithJSON(data),
+)
+// Create new config
+conf := config.NewConfig()
+// Load memory source
+conf.Load(memorySource)
+```
 ### ChangeSet
 **Source** 将 **Config** 作为一个 **ChangeSet** 返回，作为多个源的单一内部抽象。
 ```go
