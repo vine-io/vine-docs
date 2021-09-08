@@ -123,7 +123,7 @@ Wrapper 类
 - [gobreaker](https://github.com/vine-io/plugins/tree/main/wrapper/breaker/gobreaker)
 - [hystrix](https://github.com/vine-io/plugins/tree/main/wrapper/breaker/hystrix)
 
-限流:
+限流器:
 - [ratelimiter](https://github.com/vine-io/plugins/tree/main/wrapper/ratelimiter/ratelimiter)
 - [uber](https://github.com/vine-io/plugins/tree/main/wrapper/ratelimiter/uber)
 
