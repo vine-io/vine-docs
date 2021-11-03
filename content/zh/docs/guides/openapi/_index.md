@@ -81,7 +81,7 @@ vine api --handler=rpc --enable-openapi
 
 ![swagger-openapi](2021-01-25-18-58-50.png)
 
-*Vine* 的 OpenAPI 支持 swagger 风格和 redoc 风格，切换到 redoc 则使用路径 `http://127.0.0.1:8080/openapi-ui/?style=redoc`，效果如下：
+*Vine* 的 OpenAPI 支持 swagger 风格和 redoc 风格，切换到 redoc 则使用路径 `http://127.0.0.1:8080/openapi-ui/redoc`，效果如下：
 
 ![redoc-openapi](2021-01-25-19-04-57.png)
 
