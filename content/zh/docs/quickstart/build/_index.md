@@ -67,8 +67,8 @@ vine new service foo
 │   ├── biz
 │   │   └── foo.go
 │   └── infra
-│       ├── repo
-│       │   └── repo.go
+│       ├── storage
+│       │   └── storage.go
 │       └── cache
 │           └── cache.go
 ├── deploy

@@ -65,12 +65,12 @@ message Request {
 }
 ```
 
-## repo
+## storage
 当需要数据持久化时，有 types proto 生成对应的数据库交互代码。详细的说明可以参考 [proto-gen-dao](https://vine-io.github.io/vine/docs/guides/dao/)。
 
-代码的存放规则为，*谁实现，谁存放*。生成的代码存放在对应服务更目录的 `infra/repo` 下，需要在 proto 文件的头部指定生成路径:
+代码的存放规则为，*谁实现，谁存放*。生成的代码存放在对应服务更目录的 `infra/storage` 下，需要在 proto 文件的头部指定生成路径:
 ```protobuf
-// +dao:output=github.com/vine-io/foo/pkg/helloworld/infra/repo;repo
+// +dao:output=github.com/vine-io/foo/pkg/helloworld/infra/storage;storage
 syntax = "protoc"
 ```
 ## 命令规范
