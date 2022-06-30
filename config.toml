@@ -57,7 +57,7 @@ anchor = "smart"
 [[menu.main]]
     name = "实例"
     weight = 40
-    url = "https://github.com/vine-io/vine-example"
+    url = "https://github.com/vine-io/examples"
 [[menu.main]]
     name = "GitHub"
     weight = 50

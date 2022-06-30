@@ -115,6 +115,55 @@ func main() {
 	}
 }
 ```
+事务支持
+```go
+func getDB() (dao.Dialect, error) {
+
+	dsn := `your dns`
+	dialect := mysql.NewDialect(dao.DSN(dsn))
+	err := dialect.Init()
+	if err != nil {
+		return nil, err
+	}
+	dao.DefaultDialect = dialect
+	return dialect, nil
+}
+
+func TestRegisterCore(t *testing.T) {
+	db, err := getDB()
+	if err != nil {
+		t.Fatalf("get db: %v", err)
+	}
+
+	if err = RegisterCore(); err != nil {
+		t.Fatalf("registry core: %v", err)
+	}
+	if err = RegisterUser(); err != nil {
+		t.Fatalf("registry user: %v", err)
+	}
+
+	ctx := context.TODO()
+	tx := db.NewTx().Begin()
+
+	if _, err = CoreStorageBuilder().
+		SetUid("2").Create(ctx); err != nil {
+		tx.Rollback()
+		t.Errorf("create core: %v", err)
+	}
+
+	if _, err = UserStorageBuilder().WithTx(tx).
+		SetUid("1").
+		SetName("user1").
+		Create(ctx); err != nil {
+		tx.Rollback()
+		t.Fatalf("create core: %v", err)
+	}
+
+	if err = tx.Commit().Error; err != nil {
+		t.Fatalf("commit %v", err)
+	}
+}
+```
 
 ## 语法解析
 `protoc-gen-dao` 通过解析 `protobuf` 中的注释来生成代码。repeated, map, message 字段会生成新的结构体，在数据库中存储格式为 json。
@@ -314,5 +363,6 @@ message 支持以下注释:
 // +gen:pk   => 指定字段为主键(必须), 可以是 string 和 数字, 当 int 类型时自增 
 //              当多个 PK 字段存在时，默认选择第一个。
 // +gen:inline => 只能用在 message field 中，将 message 的字段直接解析为父 message 的字段
+// +gen:daoInject => 注入额外的数据库约束，详细请看 https://gorm.io/zh_CN/docs/models.html
 ...
 ```
