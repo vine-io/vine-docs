@@ -46,10 +46,7 @@ vine new service foo
 │   │       └── storage.go
 │   ├── service   // ---------- DDD 的 interfaces 层，提供对外的 gRPC 接口 
 │   │   └── foo.go
-│   └── runtime
-│       ├── doc.go  // 维护服务版本信息
-│       └── inject  // ------ 维护依赖注入代码
-│           └── inject.go
+│   └── internal
 └── vine.toml   // -------- vine 项目的描述文件
 ```
 
@@ -95,10 +92,7 @@ vine new service helloworld
 │   │   │       └── storage.go
 │   │   └── service
 │   │       └── helloworld.go
-│   └── runtime  // ------ 多个服务间的通用代码
-│       ├── doc.go
-│       └── inject
-│           └── inject.go
+│   └── internal  // ------ 多个服务间的通用代码
 └── vine.toml
 ```
 
@@ -131,7 +125,7 @@ pb = "github.com/lack-io/foo/api/service/foo/v1/foo.proto" # proto 文件路径
 type = "service" # proto 类型 service 和 api； service 表示 gRPC 服务，api 表示领域模型
 group = "foo" # proto 分组
 version = "v1" # proto 版本
-plugins = ["gogo", "vine", "validator"] # 执行 protoc 命令时携带的插件，可选 gogo、vine、validator、deepcopy、object、dao
+plugins = ["gogo", "vine", "validator"] # 执行 protoc 命令时携带的插件，可选 gogo、vine、validator、deepcopy、dao
 ```
 
 ### cluster

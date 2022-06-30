@@ -118,7 +118,7 @@ func main() {
 
 ## 语法解析
 `protoc-gen-dao` 通过解析 `protobuf` 中的注释来生成代码。repeated, map, message 字段会生成新的结构体，在数据库中存储格式为 json。
-每个带`+dao:generate`注释的 message 会生成 *Schema 结构体，并生成对应的 CURD 方法。
+每个带`+gen:dao`注释的 message 会生成 *Schema 结构体，并生成对应的 CURD 方法。
 ```golang
 // 注册 User 相应的数据库表
 func RegistryUser(in *User) error 
