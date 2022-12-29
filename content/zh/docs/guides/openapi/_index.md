@@ -68,7 +68,7 @@ protoc -I=$GOPATH/src -I=$GOPATH/src/github.com/gogo/googleapis --gogofaster_out
 执行完成后生成以下代码:
 ```golang
 // Swagger OpenAPI 3.0 for Helloworld service
-func NewHelloworldOpenAPI() *registry.OpenAPI {
+func NewHelloworldOpenAPI() *openapipb.OpenAPI {
     // ...
 }
 ```
@@ -112,7 +112,7 @@ service Helloworld {
 > 注: `protoc-gen-vine` 和 `protoc-gen-validator` 中存在大量重复注释，这样设计的原因是通过一套的注释规则直接生成更多的代码，较少非业务代码的编写。
 
 ### 语法规则
-有效的注释有以下的规则:
+有效的注释有以下的规则:
 - 注释必须以 `+gen` 作为开头
 - 注释的内容必须紧贴对应的字段，中间不能有空行
 - 支持多行注释，也可以将多行合并成一行，并用 `;` 作为分隔符
