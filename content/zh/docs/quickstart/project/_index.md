@@ -6,7 +6,7 @@ weight: 3
 description: >
 ---
 
-**Vine** 提供命令行工具创建项目，其中包括了开发过程中需要的工具链和部署内容。符合 DDD 设计规范。
+**Vine** 提供命令行工具创建项目，其中包括了开发过程中需要的工具链和部署内容。
 
 ## 单服务
 单服务目录结构使用以下命令创建:
@@ -19,7 +19,7 @@ vine new service foo
 ```bash
 ├── Makefile
 ├── README.md
-├── api  // ------ 维护 grpc 接口，和 domain 层中领域模型
+├── api  // ------ 维护 grpc 接口
 │   └── service
 │       └── foo
 │           └── v1
@@ -37,14 +37,12 @@ vine new service foo
 ├── go.sum
 ├── pkg  // 服务内部代码
 │   ├── app.go  // -------- 构造和组合各层代码，提供给 cmd/main.go
-│   ├── biz  // ---------- DDD 的 domain 层，维护业务代码
+│   ├── service  // ---------- 业务层，维护业务代码
 │   │   └── foo.go
-│   ├── infra  // --------- DDD 的 infrastructure 层，底层通用代码
-│   │   ├── cache  // -------- 缓存相关
-│   │   │   └── cache.go
+│   ├── internal  // --------- 内部层，底层通用代码
 │   │   └── storage  // ------- 数据库 storage，数据交互
 │   │       └── storage.go
-│   ├── service   // ---------- DDD 的 interfaces 层，提供对外的 gRPC 接口 
+│   ├── server   // ---------- 接口层，提供对外的 gRPC 接口 
 │   │   └── foo.go
 │   └── internal
 └── vine.toml   // -------- vine 项目的描述文件
@@ -83,16 +81,13 @@ vine new service helloworld
 ├── pkg   
 │   ├── helloworld // -------- 多服务是，pkg 每个目录代码一个服务
 │   │   ├── app.go
-│   │   ├── biz
+│   │   ├── service
 │   │   │   └── helloworld.go
-│   │   ├── infra
-│   │   │   ├── cache
-│   │   │   │   └── cache.go
+│   │   ├── internal
 │   │   │   └── storage
 │   │   │       └── storage.go
-│   │   └── service
+│   │   └── server
 │   │       └── helloworld.go
-│   └── internal  // ------ 多个服务间的通用代码
 └── vine.toml
 ```
 

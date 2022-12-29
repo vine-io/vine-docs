@@ -53,33 +53,34 @@ vine new service foo
 ```bash
 .
 ├── cmd
-│   └── main.go
+│   └── echo
+│       └── main.go
 ├── pkg
-│   ├── runtime
-│   │   ├── doc.go
-│   │   └── inject
-│   │       └── inject.go
-│   ├── app.go
-│   ├── interfaces
-│   │   └── foo.go
-│   ├── app
-│   │   └── foo.go
-│   ├── biz
-│   │   └── foo.go
-│   └── infra
-│       ├── storage
-│       │   └── storage.go
-│       └── cache
-│           └── cache.go
+│   ├── internal
+│   │   ├── storage
+│   │   │   └── storage.go
+│   │   └── version
+│   │       └── version.go
+│   └── echo
+│       ├── app.go
+│       ├── builtin.go
+│       ├── server
+│       │   └── echo.go
+│       └── service
+│           └── echo.go
 ├── deploy
-│   ├── Dockerfile
-│   ├── foo.ini
-│   └── foo.service
+│   ├── docker
+│   │   └── echo
+│   │       └── Dockerfile
+│   ├── config
+│   │   └── echo.ini
+│   └── systemd
+│       └── echo.service
 ├── api
-│   └── service
-│       └── foo
+│   └── services
+│       └── echo
 │           └── v1
-│               └── foo.proto
+│               └── echo.proto
 ├── Makefile
 └── vine.toml
 
@@ -101,7 +102,7 @@ install dependencies:
         go get github.com/vine-io/vine/cmd/protoc-gen-dao
 
 cd github.com/lack-io/foo
-        vine build foo
+        vine build echo
 ```
 
 ## 安装依赖
@@ -125,7 +126,7 @@ vine new proto
 - --proto-version string, -v string  指定 proto 文件版本，默认 v1
 - --group string                     指定 proto 文件分组，默认 core
 - --dir string                       执行 protoc 命令是所在的目录，chroot
-- --path strings, -I strings         protoc -I 路径
+- --path strings, -I strings         protoc -I 路径
 - --plugins strings, -P strings      生成 proto 时装载的插件
 
 ## 运行服务
