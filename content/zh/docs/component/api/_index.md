@@ -89,7 +89,9 @@ func main() {
 
 	s := vine.NewService(vine.Address(":8090"))
 
-	openapi.RegisterOpenAPI(app)
+	s.Init()
+
+	openapi.RegisterOpenAPI(s.Options().Client, s.Options().Registry, app)
 
 	Type, Namespace := "api", "go.vine"
 	HandlerType := "rpc"
@@ -118,8 +120,6 @@ func main() {
 	app.Use(rp.Handle)
 
 	s.Server().Init(grpcServer.HttpHandler(app))
-
-	s.Init()
 
 	rpc.RegisterEchoRpcHandler(s.Server(), new(EchoRpc))
 	openapi.RegisterOpenAPIHandler(s.Server())
