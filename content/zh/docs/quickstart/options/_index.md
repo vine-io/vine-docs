@@ -47,11 +47,8 @@ service := vine.NewService(
 
 auth、config、registry、cache 等包将默认为我们的零依赖插件。可以通过设置环境变量或者命令行参数来配置它们，在执行 `service.Init()` 后生效。
 ```bash
-## as an env vars
-VINE_CACHE=file go run main.go
-
 ## or as a flag
-go run main.go --cache=file
+go run main.go --cache.default=file
 ```
 ## 使用 options
 在内部，可以通过选项访问存储：
@@ -82,7 +79,7 @@ vine 服务初始化是，支持以下 options
 
 ```go
 vine.Name(),            // 微服务名称
-vine.Id(),              // 微服务 uuid
+vine.ID(),              // 微服务 uuid
 vine.Version(),         // 微服务版本
 vine.Address(),         // 微服务绑定地址
 vine.Metadata(),        // 微服务 metadata
@@ -90,7 +87,6 @@ vine.Server(),          // 设置内部 Server 模块
 vine.Client(),          // 设置内部 Client 模块
 vine.Selector(),        // 设置 client selector 
 vine.HandleSignal(),    // 是否处理系统信号
-vine.Context(),         // 设置 Context 
 vine.Broker(),          // 设置内部 broker 模块
 vine.Registry(),        // 设置内部 Registry 模块
 vine.RegisterTTL(),     // 服务注册有效时间
@@ -99,7 +95,10 @@ vine.Tracer(),          // 设置 Trace 模块
 vine.Dialect(),         // 设置 Dialect 模块
 vine.Cmd(),             // 设置 Cmd 模块
 vine.Action(),          // 设置 Cmd Action 回调函数
-vine.Flags(),           // 添加 Cmd Flags 
+vine.Flags(),           // 添加 Cmd pflag.Flags 
+vine.FlagSet(),         // 添加 Cmd pflag.FlagSet
+vine.GoFlags(),         // 添加 Cmd flag.Flags 
+vine.GoFlagSet(),       // 添加 Cmd flag.FlagSet
 vine.WrapHandler(),     // 添加 Server 请求拦截器
 vine.WrapClient(),      // 添加 Client 请求拦截器
 vine.WrapCall(),        // 添加 Client Call 请求拦截器

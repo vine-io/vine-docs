@@ -14,31 +14,32 @@ go get github.com/vine-io/vine/cmd/vine
 验证安装结果
 ```bash
 $ vine --help
-NAME:
-   vine - A vine service runtime
+A vine service runtime
         _
  _   __(_)___  ___
 | | / / / __ \/ _ \
 | |/ / / / / /  __/
 |___/_/_/ /_/\___/
 
-USAGE:
-   vine [global options] command [command options] [arguments...]
+Usage:
+  vine [flags]
+  vine [command]
 
-VERSION:
-   ...
+Available Commands:
+  api         Run the api gateway
+  build       Build vine project or resource
+  completion  Generate the autocompletion script for the specified shell
+  help        Help about any command
+  init        Initialize a vine project
+  new         Create vine resource template
+  run         Start a vine project
 
-COMMANDS:
-   api      Run the api gateway
-   new      Create vine resource template
-   init     Initialize a vine project
-   build    Build vine project or resource
-   run      Start a vine project
-   help, h  Shows a list of commands or help for one command
+Flags:
+  -h, --help      help for vine
+  -v, --version   version for vine
 
-GLOBAL OPTIONS:
-   --help, -h     show help (default: false)
-   --version, -v  print the version (default: false)
+Use "vine [command] --help" for more information about a command.
+
 ```
 
 vine 命令行工具支持多个子命令，包含以下功能:
@@ -71,32 +72,33 @@ Creating resource  in $GOPATH/src/example
 执行以下命令创建一个服务:
 ```bash
 $ vine new service 
-Creating resource example in $GOPATH/src/example
+Creating resource example in $GOPATH/github.com/lack-io/foo
 
 .
 ├── cmd
 │   └── main.go
 ├── pkg
-│   ├── runtime
-│   │   └── doc.go
-│   ├── plugin.go
+│   ├── internal
+│   │   ├── storage
+│   │   │   └── storage.go
+│   │   └── version
+│   │       └── version.go
 │   ├── app.go
+│   ├── builtin.go
 │   ├── server
 │   │   └── example.go
-│   ├── service
-│   │   ├── example.go
-│   │   └── wire.go
-│   └── dao
+│   └── service
 │       └── example.go
 ├── deploy
 │   ├── Dockerfile
-│   ├── example.ini
-│   └── example.service
-├── proto
-│   └── service
+│   ├── foo.yml
+│   └── foo.service
+├── api
+│   └── services
 │       └── example
 │           └── v1
 │               └── example.proto
+├── Makefile
 └── vine.toml
 
 
@@ -106,24 +108,22 @@ visit https://github.com/protocolbuffers/protobuf/releases
 
 download protobuf for vine:
 
-cd example
+cd github.com/lack-io/foo
 
 install dependencies:
-   go get github.com/google/wire/cmd/wire
-	go get github.com/gogo/protobuf
-	go get github.com/vine-io/vine/cmd/protoc-gen-gogo
-	go get github.com/vine-io/vine/cmd/protoc-gen-vine
-	go get github.com/vine-io/vine/cmd/protoc-gen-validator
-	go get github.com/vine-io/vine/cmd/protoc-gen-deepcopy
-	go get github.com/vine-io/vine/cmd/protoc-gen-dao
+        go get github.com/gogo/protobuf
+        go get github.com/vine-io/vine/cmd/protoc-gen-gogo
+        go get github.com/vine-io/vine/cmd/protoc-gen-vine
+        go get github.com/vine-io/vine/cmd/protoc-gen-validator
+        go get github.com/vine-io/vine/cmd/protoc-gen-deepcopy
+        go get github.com/vine-io/vine/cmd/protoc-gen-dao
 
-cd example
-	vine build example
+cd github.com/lack-io/foo
+        vine build foo
 ```
 ### 安装依赖包
 根据提示，安装依赖
 ```bash
-$ go get github.com/google/wire/cmd/wire
 $ go get github.com/gogo/protobuf
 $ go get github.com/vine-io/vine/cmd/protoc-gen-gogo
 $ go get github.com/vine-io/vine/cmd/protoc-gen-vine
@@ -140,9 +140,7 @@ protoc -I=$GOPATH/src --gogo_out=:. --vine_out=:. --validator_out=:. example/pro
 ```
 编译成二进制文件:
 ```bash
-$ go mod vendor
-go: finding module for package github.com/google/wire
-go: found github.com/google/wire in github.com/google/wire v0.5.0
+$ go mod tidy && go mod vendor
 $ vine build service example
 vine build service example
 go build -a -installsuffix cgo -ldflags "-s -w" cmd/main.go
@@ -161,30 +159,30 @@ $ ./main
 vine 项目采用合理的结构，使代码结构变得清晰易理解。项目分成两种类型，`cluster` 分布式和 `single` 单服务。两种类型的目录结构上有一些区别
 ```bash
 # 单服务项目
-.
-├── cmd  # 服务入口目录, single类型时目录下只有 main.go 文件，cluster 下包含多个服务同名的目录，内部有 main.go 文件
+├── cmd # 服务入口目录, single类型时目录下只有 main.go 文件，cluster 下包含多个服务同名的目录，内部有 main.go 文件
 │   └── main.go
 ├── pkg  # pkg 每个服务核心代码存放下该目录下，single类型时，目录下直接存放服务代码，cluster类型时，目录还有一层服务同名的子目录。
-│   ├── runtime  # 各服务公用的工具包和 client 等
-│   │   └── doc.go
-│   ├── plugin.go # vine 服务的插件信息
-│   ├── app.go    # 服务入口，初始化的一些代码
-│   ├── server    # 提供 rpc 服务，只进行一些数据的验证，具体工具调用 service
-│   │   └── example.go
-│   ├── service   # 服务业务逻辑代码
-│   │   ├── example.go
-│   │   └── wire.go # 使用 github.com/google/wire 实现 DI
-│   └── dao       # 数据库交互代码，有 protoc 工具自动生成
+│   ├── internal # 各服务公用的工具包和 client 等
+│   │   ├── storage
+│   │   │   └── storage.go
+│   │   └── version
+│   │       └── version.go
+│   ├── app.go # 服务入口，初始化的一些代码
+│   ├── builtin.go # vine 服务的插件信息
+│   ├── server # 提供 rpc 服务，只进行一些数据的验证，具体工具调用 service
+│   │   └── example.go 
+│   └── service  # 服务业务逻辑代码
 │       └── example.go
-├── deploy    # 项目代码部署时需要的文件，single 和 cluster 结构上不同
+├── deploy   # 项目代码部署时需要的文件，single 和 cluster 结构上不同
 │   ├── Dockerfile # 服务 Dockerfile
-│   ├── example.ini # 服务的启动参数配置文件
-│   └── example.service # CentOS 上的服务脚本
-├── proto    # 存放 *.proto 文件及其生成的 *.go 代码，分成 apis 和 service 类型
-│   └── service # 提供 gRPC 服务，引用 proto/apis 下的 message  
+│   ├── foo.yml # 服务的启动参数配置文件
+│   └── foo.service # CentOS 上的服务脚本
+├── api # 存放 *.proto 文件及其生成的 *.go 代码，分成 apis 和 service 类型
+│   └── services # 提供 gRPC 服务，引用 proto/apis 下的 message  
 │       └── example # 和服务同名的目录
-│           └── v1  # 服务接口版本，默认为 v1
+│           └── v1 # 服务接口版本，默认为 v1
 │               └── example.proto
+├── Makefile
 └── vine.toml # vine 项目的描述文件，有该文件则被认定为 vine 项目。
 ```
 `vine.toml` 文件内容说明

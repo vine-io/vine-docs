@@ -15,13 +15,15 @@ type Sync interface {
 	// Options Return the options
 	Options() Options
 	// Leader Elect a leader
-	Leader(id string, opts ...LeaderOption) (Leader, error)
+	Leader(ctx context.Context, name string, opts ...LeaderOption) (Leader, error)
 	// ListMembers get all election member
-	ListMembers(opts ...ListMembersOption) ([]*Member, error)
+	ListMembers(ctx context.Context, opts ...ListMembersOption) ([]*Member, error)
+	// WatchElect watch leader event
+	WatchElect(ctx context.Context, opts ...WatchElectOption) (ElectWatcher, error)
 	// Lock acquires a lock
-	Lock(id string, opts ...LockOption) error
+	Lock(ctx context.Context, id string, opts ...LockOption) error
 	// Unlock releases a lock
-	Unlock(id string) error
+	Unlock(ctx context.Context, id string) error
 	// String Sync implementation
 	String() string
 }
@@ -37,14 +39,14 @@ func main() {
 	}
 
     // 创建锁
-	err := s.Lock("lock1", sync.LockTTL(time.Second * 3))
+	err := s.Lock(context.TODO(), "lock1", sync.LockTTL(time.Second * 3))
 	if err != nil {
 		log.Fatalln(err)
 	}
 
 	ch := make(chan struct{}, 1)
 	go func() {
-		err := s.Lock("lock1", sync.LockTTL(time.Second * 3))
+		err := s.Lock(context.TODO(), "lock1", sync.LockTTL(time.Second * 3))
 		if err != nil {
 			log.Fatalln(err)
 		}
@@ -53,7 +55,7 @@ func main() {
 	}()
 
     // 释放锁
-	if err = s.Unlock("lock1"); err != nil {
+	if err = s.Unlock(context.TODO(), "lock1"); err != nil {
 		log.Fatalln(err)
 	}
 	fmt.Println("lock1 released")
@@ -71,13 +73,13 @@ func main() {
 
 	id := uuid.NewString()
     // 新 leader
-	role1, err := s.Leader("leader", sync.LeaderNS("default"), sync.LeaderId(id), sync.LeaderTTL(3))
+	role1, err := s.Leader(context.TODO(), "leader", sync.LeaderNS("default"), sync.LeaderId(id), sync.LeaderTTL(3))
 	if err != nil {
 		log.Fatalln(err)
 	}
 
     // 查询所有选举成员
-    ms, _ := s.ListMembers(sync.MemberNS("default"))
+    ms, _ := s.ListMembers(context.TODO(), sync.MemberNS("default"))
 	for _, m := range ms {
 		fmt.Println(m)
 	}
@@ -101,7 +103,7 @@ func main() {
 上锁和释放锁
 ```go
 func main() {
-    s.Lock("lock1",
+    s.Lock(context.TODO(), "lock1",
 		sync.LockTTL(),   // 锁的 ttl
 		sync.LockWait(),  // 超时时间
 	)
@@ -110,7 +112,7 @@ func main() {
 选举
 ```go
 func main() {
-    s.Leader("leader",
+    s.Leader(context.TODO(), "leader",
 		sync.LeaderNS(), // namespace
 		sync.LeaderTTL(), // 
 		sync.LeaderId(), // 成员 id

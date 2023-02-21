@@ -19,12 +19,6 @@ go env -w GO111MODULE=on
 ## 安装
 安装 **Vine** 工具
 
-go get 安装
-```bash
-go get -u github.com/vine-io/vine/cmd/vine@latest
-go get -u github.com/vine-io/vine/cmd/protoc-gen-gogo@latest
-go get -u github.com/vine-io/vine/cmd/protoc-gen-vine@latest
-```
 go install 安装
 ```bash
 go install github.com/vine-io/vine/cmd/vine@latest
@@ -37,6 +31,7 @@ git clone https://github.com/vine-io/vine
 cd vine
 make build && mv vine $GOPATH/bin/vine 
 ```
+直接下载二进制文件 [release](https://github.com/vine-io/vine/releases/latest)
 
 ## 创建项目
 ```bash
@@ -51,6 +46,7 @@ vine new service helloworld
 # 生成代码
 vine build proto
 # 安装依赖
+go mod tidy 
 go mod vendor
 # 启动服务
 vine run helloworld

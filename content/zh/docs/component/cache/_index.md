@@ -15,13 +15,13 @@ type Cache interface {
 	// Options allows you to view the current options.
 	Options() Options
 	// Get takes a single key name and optional GetOptions. It returns matching []*Record or an error.
-	Get(key string, opts ...GetOption) ([]*Record, error)
+	Get(ctx context.Context, key string, opts ...GetOption) ([]*Record, error)
 	// Put writes a record to the cache, and returns an error if the record was not written.
-	Put(r *Record, opts ...PutOption) error
+	Put(ctx context.Context, r *Record, opts ...PutOption) error
 	// Del removes the record with the corresponding key from the cache.
-	Del(key string, opts ...DelOption) error
+	Del(ctx context.Context, key string, opts ...DelOption) error
 	// List returns any keys that match, or an empty list with no error if none matched.
-	List(opts ...ListOption) ([]string, error)
+	List(ctx context.Context, opts ...ListOption) ([]string, error)
 	// Close the cache
 	Close() error
 	// String returns the name of the implementation.
@@ -73,7 +73,7 @@ func main() {
 		Metadata: map[string]interface{}{}, // 
 		Expiry:   time.Second * 3, // 过期时间
 	}
-	if err := cc.Put(r); err != nil {
+	if err := cc.Put(context.TODO(), r); err != nil {
 		log.Fatalln(err)
 	}
 }
@@ -82,14 +82,14 @@ func main() {
 ```go
 func main() {
 	// 获取所有 keys
-	keys, err := cc.List()
+	keys, err := cc.List(context.TODO())
 	if err != nil {
 		log.Fatalln(err)
 	}
 	fmt.Println(keys)
 
 	// 通过 key 获取 value
-	rr, err := cc.Get("a")
+	rr, err := cc.Get(context.TODO(), "a")
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -99,7 +99,7 @@ func main() {
 ### 删除 key
 ```go
 func main() {
-	if err := cc.Del("a"); err != nil {
+	if err := cc.Del(context.TODO(), "a"); err != nil {
 		log.Fatalln(err)
 	}
 }
@@ -120,7 +120,7 @@ func main() {
 `Put` options
 ```go
 func main() {
-	cc.Put(r,
+	cc.Put(context.TODO(), r,
 		cache.PutExpiry(), // 指定 key 过期时间
 		cache.PutTo(),     // 指定 database 和 table
 		cache.PutTTL(),    // 指定 key ttl
@@ -131,6 +131,7 @@ func main() {
 ```go
 func main() {
 	keys, err := cc.List(
+		context.TODO(),
 		cache.ListFrom(),  // 指定 database 和 table
 		cache.ListLimit(), // 限制 key 数量
 		cache.ListOffset(), // 查询偏移量
@@ -142,7 +143,7 @@ func main() {
 `Get` options
 ```go
 func main() {
-	cc.Get("a",
+	cc.Get(context.TODO(), "a",
 		cache.GetFrom(), // 指定 database 和 table
 		cache.GetLimit(), // 限制 key 数量
 		cache.GetOffset(), // 查询偏移量
@@ -154,7 +155,7 @@ func main() {
 `Del` options
 ```go
 func main() {
-	cc.Del("a",
+	cc.Del(context.TODO(), "a",
 		cache.DelFrom(), // 指定 database 和 table
 	)
 }

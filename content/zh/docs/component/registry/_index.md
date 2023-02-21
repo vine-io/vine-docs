@@ -13,11 +13,11 @@ description: >
 type Registry interface {
 	Init(...Option) error // ------------------------------- 模块初始化
 	Options() Options // ----------------------------------- 模块的配置信息
-	Register(*Service, ...RegisterOption) error // --------- 注册服务
-	Deregister(*Service, ...DeregisterOption) error // ----- 注销服务
-	GetService(string, ...GetOption) ([]*Service, error) //- 根据名称查找服务
-	ListServices(...ListOption) ([]*Service, error) // ----- 查询所有服务
-	Watch(...WatchOption) (Watcher, error) // -------------- 监听服务变化
+	Register(context.Context, *Service, ...RegisterOption) error // --------- 注册服务
+	Deregister(context.Context, *Service, ...DeregisterOption) error // ----- 注销服务
+	GetService(context.Context,string, ...GetOption) ([]*Service, error) //- 根据名称查找服务
+	ListServices(context.Context, ...ListOption) ([]*Service, error) // ----- 查询所有服务
+	Watch(context.Context, ...WatchOption) (Watcher, error) // -------------- 监听服务变化
 	String() string // ------------------------------------- 查询实现 Registry 接口的具体类型
 }
 ```
@@ -71,12 +71,13 @@ func main() {
 	}
 
 	// 注册服务
-	if err := r.Register(svc); err != nil {
+	ctx := context.TODO()
+	if err := r.Register(ctx, svc); err != nil {
 		log.Fatalln(err)
 	}
 
 	// 注销服务
-	if err := r.Deregister(svc); err != nil {
+	if err := r.Deregister(ctx, svc); err != nil {
 		log.Fatalln(err)
 	}
 }
@@ -95,7 +96,8 @@ func main() {
 	}
 
 	// 查询单个服务
-	list, err = r.GetService("go.vine.test")
+	ctx := context.TODO()
+	list, err = r.GetService(ctx, "go.vine.test")
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -110,7 +112,8 @@ func main() {
 ```go
 func main() {
 	// 启动一个监听器
-	watcher, err := r.Watch(registry.WatchService("go.vine.test"))
+	ctx := context.TODO()
+	watcher, err := r.Watch(ctx, registry.WatchService("go.vine.test"))
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -218,7 +221,5 @@ func main() {
 ## 服务启动
 **Vine** 服务以插件的方式，注册多种实现，用户可以再服务启动时选择喜欢的类型。
 ```bash
-./helloworld --registy=etcd --registry-address=127.0.0.1:2379
-# 或者使用环境变量
-VINE_REGISTRY=ETCD VINE_REGISTRY_ADDRESS=127.0.0.1:2379 ./helloworld
+./helloworld --registy.default=etcd --registry.address=127.0.0.1:2379
 ```

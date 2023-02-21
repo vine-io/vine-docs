@@ -33,11 +33,7 @@ go build -o service main.go plugins.go
 
 使用插件
 ```bash
-service --registry=etcd --broker=nats
-```
-或者使用环境变量
-```bash
-VINE_REGISTRY=etcd VINE_BROKER=nats service
+service --registry.default=etcd --broker.default=nats
 ```
 
 ## 插件选项
@@ -80,11 +76,11 @@ func main() {
 type Registry interface {
 	Init(...Option) error
 	Options() Options
-	Register(*Service, ...RegisterOption) error
-	Deregister(*Service, ...DeregisterOption) error
-	GetService(string, ...GetOption) ([]*Service, error)
-	ListServices(...ListOption) ([]*Service, error)
-	Watch(...WatchOption) (Watcher, error)
+	Register(context.Context, *Service, ...RegisterOption) error
+	Deregister(context.Context, *Service, ...DeregisterOption) error
+	GetService(context.Context, string, ...GetOption) ([]*Service, error)
+	ListServices(context.Context, ...ListOption) ([]*Service, error)
+	Watch(context.Context, ...WatchOption) (Watcher, error)
 	String() string
 }
 ```

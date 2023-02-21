@@ -48,10 +48,12 @@ message EchoRsp {
 
 使用 protoc、protoc-gen-gogo、protoc-gen-vine 来生成 protobuf code
 ```bash
-go get github.com/gogo/protobuf
-go get github.com/vine-io/vine/cmd/protoc-gen-gogo
-go get github.com/vine-io/vine/cmd/protoc-gen-vine
+go install github.com/gogo/protobuf@latest
+go install github.com/vine-io/vine/cmd/protoc-gen-gogo@latest
+go install github.com/vine-io/vine/cmd/protoc-gen-vine@latest
 ```
+或者直接下载编译包 [https://github.com/vine-io/vine/releases](https://github.com/vine-io/vine/releases)
+
 使用命令生成 `greet.pb.go` 和 `greet.vine.go` 文件:
 ```bash
 cd $GOPATH/src
@@ -100,7 +102,9 @@ func main() {
 	)
 
 	// 服务初始化
-	app.Init()
+	if err := app.Init(); err != nil {
+		log.Fatalf("init greet: %v", err)
+	}
 
 	// 注册服务
 	if err := pb.RegisterGreeterHandler(app.Server(), &greet{}); err != nil {

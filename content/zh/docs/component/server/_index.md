@@ -263,13 +263,31 @@ func main() {
 `Server` 的 gRPC 实现可以同时提供 gRPC 和 http 服务:
 
 ```go
+import (
+	"net/http"
+
+	"github.com/gin-gonic/gin"
+	membroker "github.com/vine-io/vine/core/broker/memory"
+	"github.com/vine-io/vine/core/registry/memory"
+	"github.com/vine-io/vine/core/server"
+	"github.com/vine-io/vine/core/server/grpc"
+)
+
 func main() {
-	gh := grpc.Grpc2Http{
-		CertFile: "server.pem",
-		KeyFile:  "server.key",
-		CaFile:   "ca.pem",
-	}
-	grpc.NewServer(grpc.GrpcToHttp(gh))
+	reg := memory.NewRegistry()
+	bro := membroker.NewBroker()
+
+	mux := gin.New()
+	mux.GET("/", func(ctx *gin.Context) {
+		ctx.JSON(http.StatusOK, "hello world")
+		return
+	})
+	s := grpc.NewServer()
+	s.Init(grpc.HttpHandler(mux), server.Registry(reg), server.Broker(bro))
+
+	s.Start()
+
+	select {}
 }
 ```
 
@@ -278,12 +296,23 @@ func main() {
 ## http 实现
 
 ```go
+
+import (
+	"net/http"
+
+	membroker "github.com/vine-io/vine/core/broker/memory"
+	"github.com/vine-io/vine/core/registry/memory"
+	"github.com/vine-io/vine/core/server"
+	vhttp "github.com/vine-io/vine/core/server/http"
+	log "github.com/vine-io/vine/lib/logger"
+)
+
 func main() {
 	reg := memory.NewRegistry()
 	bro := membroker.NewBroker()
 
 	// create server
-	srv := NewServer(server.Registry(reg), server.Broker(bro))
+	srv := vhttp.NewServer(server.Registry(reg), server.Broker(bro))
 
 	// create server mux
 	mux := http.NewServeMux()
@@ -296,14 +325,14 @@ func main() {
 
 	// register handler
 	if err := srv.Handle(hd); err != nil {
-		t.Fatal(err)
+		log.Fatal(err)
 	}
 
 	// start server
 	if err := srv.Start(); err != nil {
-		t.Fatal(err)
+		log.Fatal(err)
 	}
 
-	select{}
+	select {}
 }
 ```

@@ -17,7 +17,7 @@ type Broker interface {
 	Address() string
 	Connect() error
 	Disconnect() error
-	Publish(topic string, m *Message, opts ...PublishOption) error
+	Publish(ctx context.Context, topic string, m *Message, opts ...PublishOption) error
 	Subscribe(topic string, h Handler, opts ...SubscribeOption) (Subscriber, error)
 	String() string
 }
@@ -84,7 +84,7 @@ func main() {
 	go func() {
 		<-time.After(time.Second * 1)
 		// publish message to broker
-        b.Publish(topic, &broker.Message{Header: map[string]string{"a": "b"}, Body: []byte("hello world")})
+        b.Publish(context.TODO(), topic, &broker.Message{Header: map[string]string{"a": "b"}, Body: []byte("hello world")})
 	}()
 
     time.Sleep(time.Second * 2)

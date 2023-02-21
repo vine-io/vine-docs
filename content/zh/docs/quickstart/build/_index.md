@@ -8,20 +8,20 @@ description: >
 
 我们提供一套工具帮助开发者快速构建微服务。
 ## 安装
-使用 go get 安装
+使用 go install 安装
 ```bash
-go get -u github.com/vine-io/vine/cmd/vine@latest
+go install github.com/vine-io/vine/cmd/vine@latest
 ```
 编译包安装 (推荐)
 ```bash
-wget https://github.com/vine-io/vine/releases/download/v0.23.0/vine-darwin-amd64-v0.23.0.tar.gz
-tar -xvf vine-darwin-amd64-v0.23.0.tar.gz
-cp -r darwin-amd64/* $GOPATH/bin/
+bash -c "$(curl -fsSL https://raw.github.com/vine-io/vine/master/tools/install.sh)"
 ```
+> windows 平台直接去 [release](https://github.com/vine-io/vine/releases/latest) 下载
+
 工具使用
 ```bash
 vine --version
-> v0.23.0-8b25f36c-1630374346
+> vine version v1.5.0-5a39306c-1676942884
 ```
 
 ## 新建项目
