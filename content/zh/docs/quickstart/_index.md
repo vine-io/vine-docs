@@ -9,6 +9,12 @@ description: >
 
 ## 定义接口
 
+### 下载 vine
+```bash
+bash -c "$(curl -fsSL https://raw.github.com/vine-io/vine/master/tools/install.sh)"
+```
+> windows 用户请[在此](https://github.com/vine-io/vine/releases/latest)下载，并解压到 $PATH 目录下
+
 ### 新建项目
 新建目录保存相关代码:
 ```bash
