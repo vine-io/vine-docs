@@ -91,7 +91,7 @@ func main() {
 
 	s.Init()
 
-	openapi.RegisterOpenAPI(s.Options().Client, s.Options().Registry, app)
+	openapi.RegisterOpenAPI(s.Options().Client, app)
 
 	Type, Namespace := "api", "go.vine"
 	HandlerType := "rpc"
