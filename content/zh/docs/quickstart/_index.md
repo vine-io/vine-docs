@@ -90,6 +90,7 @@ import (
 	"log"
 
 	"github.com/vine-io/vine"
+	"github.com/vine-io/vine/lib/api/handler/openapi"
 	pb "mysite/proto"
 )
 
@@ -110,6 +111,11 @@ func main() {
 	// 服务初始化
 	if err := app.Init(); err != nil {
 		log.Fatalf("init greet: %v", err)
+	}
+
+	// 注册 openapi 服务
+	if err = openapi.RegisterOpenAPIHandler(svc); err != nil {
+		log.Fatalf("register openapi hander: %v", err)
 	}
 
 	// 注册服务
