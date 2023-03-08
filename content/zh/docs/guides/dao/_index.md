@@ -19,7 +19,7 @@ package v1;
 
 // +gen:dao
 message User {
-  // +gen:pk
+  // +gen:primaryKey
   string id = 1;
 
   string name = 2;
@@ -43,7 +43,7 @@ go get github.com/vine-io/vine/cmd/protoc-gen-dao
 
 ### 3.生成CURD代码
 ```bash
-protoc -I=$GOPATH/src --gogofaster_out=plugins=grpc:.  --dao_out=:. proto/dao.proto
+protoc -I=$GOPATH/src --gogo_out=:. --dao_out=:. proto/dao.proto
 ```
 执行完成后生成以下文件:
 ```bash
@@ -55,78 +55,84 @@ protoc -I=$GOPATH/src --gogofaster_out=plugins=grpc:.  --dao_out=:. proto/dao.pr
 ### 4.CURD 实例
 ```golang
 func main() {
-	dao.DefaultDialect = sqlite.NewDialect(dao.DSN("user.db"), dao.Logger(logger.Default.LogMode(logger.Info)))
-	dao.DefaultDialect.Init()
+	db, err := gorm.Open(sqlite.Open("dao.db"), &gorm.Config{})
+	if err != nil {
+		log.Fatal(err)
+	}
 
-    // 注册 Schema, 会在数据库中创建对应的表
-	v1.RegistryUser(&v1.User{})
+	s := v1.NewUserStorage(db, &v1.User{})
+	// 注册 Schema, 会在数据库中创建对应的表
+	if err := s.AutoMigrate(); err != nil {
+		log.Fatal(err)
+	}
 
 	ctx := context.TODO()
-	u := &v1.User{
-		Id: "1",
-		Name: "Lack",
-		Following: []string{"JJ", "OO"},
-		Tags: map[string]string{"label": "vv"},
-		Other:     &v1.Other{
-			K: "k1",
-			V: "v1",
+
+	user := &v1.User{
+		Id:        "1",
+		Name:      "lack",
+		Following: []string{"a", "b"},
+		Tags:      map[string]string{},
+		Other: &v1.Other{
+			K: "k",
+			V: "v",
 		},
 	}
 
 	fmt.Println("Create ==============>")
-	out, err := v1.FromUser(u).Create(ctx)
+	s = v1.NewUserStorage(db, user)
+	out, err := s.XXCreate(ctx)
 	if err != nil {
 		log.Fatal(err)
 	}
 	fmt.Println(out)
 
 	fmt.Println("Updates ==============>")
-	out, err = v1.FromUser(&v1.User{Id: "1", Tags: map[string]string{"aa": "vv"}}).Updates(ctx)
+	s = v1.NewUserStorage(db, &v1.User{Id: "1", Name: "lack_rename"})
+	out, err = s.XXUpdates(ctx)
 	if err != nil {
 		log.Fatal(err)
 	}
 	fmt.Println(out)
 
-
 	fmt.Println("FindAll ==============>")
-	outs, err := v1.FromUser(&v1.User{Tags: map[string]string{"aa": "vv"}}).FindAll(ctx)
-	if err != nil {
-		log.Fatal(err)
-	}
+	s = v1.NewUserStorage(db, &v1.User{Following: []string{"a"}})
+	outs, err := s.XXFindAll(ctx)
 	fmt.Println(outs)
 
 	fmt.Println("FindOne ==============>")
-	out, err = v1.FromUser(&v1.User{Id: "1"}).FindOne(ctx)
+	s = v1.NewUserStorage(db, &v1.User{Name: "lack_rename"})
+	out, err = s.XXFindOne(ctx)
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println(outs)
+	fmt.Println(out)
 
 	fmt.Println("SoftDelete ==============>")
-	err = v1.FromUser(&v1.User{Id: "1"}).SoftDelete(ctx)
+	s = v1.NewUserStorage(db, &v1.User{Id: "1"})
+	err = s.XXDelete(ctx, true)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	fmt.Println("Delete ==============>")
-	err = v1.FromUser(&v1.User{Id: "1"}).Delete(ctx)
+	s = v1.NewUserStorage(db, &v1.User{Id: "1"})
+	err = s.XXDelete(ctx, false)
 	if err != nil {
-		//log.Fatal(err)
+		log.Fatal(err)
 	}
 }
 ```
 事务支持
 ```go
-func getDB() (dao.Dialect, error) {
+func getDB() (*gorm.DB, error) {
 
 	dsn := `your dns`
-	dialect := mysql.NewDialect(dao.DSN(dsn))
-	err := dialect.Init()
+	db, err := gorm.Open(sqlite.Open("dao.db"), &gorm.Config{})
 	if err != nil {
-		return nil, err
+		log.Fatal(err)
 	}
-	dao.DefaultDialect = dialect
-	return dialect, nil
+	return db, nil
 }
 
 func TestRegisterCore(t *testing.T) {
@@ -135,33 +141,12 @@ func TestRegisterCore(t *testing.T) {
 		t.Fatalf("get db: %v", err)
 	}
 
-	if err = RegisterCore(); err != nil {
-		t.Fatalf("registry core: %v", err)
-	}
-	if err = RegisterUser(); err != nil {
-		t.Fatalf("registry user: %v", err)
-	}
-
 	ctx := context.TODO()
-	tx := db.NewTx().Begin()
+	tx := db.Begin()
 
-	if _, err = CoreStorageBuilder().
-		SetUid("2").Create(ctx); err != nil {
-		tx.Rollback()
-		t.Errorf("create core: %v", err)
-	}
+	// TODO: 
 
-	if _, err = UserStorageBuilder().WithTx(tx).
-		SetUid("1").
-		SetName("user1").
-		Create(ctx); err != nil {
-		tx.Rollback()
-		t.Fatalf("create core: %v", err)
-	}
-
-	if err = tx.Commit().Error; err != nil {
-		t.Fatalf("commit %v", err)
-	}
+	tx.Commit()
 }
 ```
 
@@ -170,29 +155,21 @@ func TestRegisterCore(t *testing.T) {
 每个带`+gen:dao`注释的 message 会生成 *Schema 结构体，并生成对应的 CURD 方法。
 ```golang
 // 注册 User 相应的数据库表
-func RegistryUser(in *User) error 
-// User => UserSchema, 忽略空值字段
-func FromUser(in *User) *UserSchema 
-// UserSchema => User
-func (m *UserSchema) ToUser() *User
-// User 结构体在数据库中的表名
-func (UserSchema) TableName() string 
-// 主键信息，返回主键名称、值、是否为零值
-func (m UserSchema) PrimaryKey() (string, interface{}, bool)
+func (s *UserStorage) AutoMigrate() error 
 // 分页查询，等同 FindAll 和 Count
-func (m *UserSchema) FindPage(ctx context.Context, page, size int, exprs ...clause.Expression) ([]*User, int64, error) 
+func (s *UserStorage) XXFindPage(ctx context.Context, page, size int) ([]*User, int64, error) 
 // 查询所有符合的记录
-func (m *UserSchema) FindAll(ctx context.Context, exprs ...clause.Expression) ([]*User, error) 
+func (s *UserStorage) XXFindAll(ctx context.Context) ([]*User, error) 
 // 查询符合的记录总量
-func (m *UserSchema) Count(ctx context.Context, exprs ...clause.Expression) (int64, error)
+func (s *UserStorage) Count(ctx context.Context) (int64, error)
 // 查询首条符合的记录
-func (m *UserSchema) FindOne(ctx context.Context, exprs ...clause.Expression) (*User, error)
+func (s *UserStorage) XXFindOne(ctx context.Context) (*User, error)
 // 插入一条记录
-func (m *UserSchema) Create(ctx context.Context) (*User, error) 
+func (s *UserStorage) XXCreate(ctx context.Context) (*User, error) 
 // 更新记录
-func (m *UserSchema) Updates(ctx context.Context) (*User, error)
+func (s *UserStorage) XXUpdates(ctx context.Context) (*User, error)
 // 软删除
-func (m *UserSchema) Delete(ctx context.Context, soft) error 
+func (s *UserStorage) XXDelete(ctx context.Context, soft) error 
 ```
 
 ### 类型转化
@@ -264,8 +241,8 @@ func (m *UserTags) Scan(value interface{}) error {
 	return _go.Unmarshal(bytes, &m)
 }
 
-func (m *UserTags) DaoDataType() string {
-	return "json"
+func (m *UserFollowing) GormDBDataType(db *gorm.DB, field *schema.Field) string {
+	return dao.GetGormDBDataType(db, field)
 }
 ```
 ```protobuf
@@ -299,8 +276,8 @@ func (m *UserOther) Scan(value interface{}) error {
 	return _go.Unmarshal(bytes, &m)
 }
 
-func (m *UserOther) DaoDataType() string {
-	return "json"
+func (m *UserFollowing) GormDBDataType(db *gorm.DB, field *schema.Field) string {
+	return dao.GetGormDBDataType(db, field)
 }
 ```
 
@@ -310,13 +287,15 @@ func (m *UserOther) DaoDataType() string {
     // slice 格式，查询slice包含指定项的记录
     if len(m.Following) != 0 {
 		for _, item := range m.Following {
-			exprs = append(exprs, dao.DefaultDialect.JSONBuild("following").Tx(tx).Contains(item))
+			expr, query := dao.JSONQuery("following").Contains(tx, item)
+			s.joins = append(s.joins, query)
+			exprs = append(exprs, expr)
 		}
 	}
     // map 格式，查询kv符合条件的记录，key 类型必须为 string
 	if m.Tags != nil {
 		for k, v := range m.Tags {
-			exprs = append(exprs, dao.DefaultDialect.JSONBuild("tags").Tx(tx).Equals(v, k))
+			exprs = append(exprs, dao.JSONQuery("tags").Equals(v, k))
 		}
 	}
     // struct 格式，精确查询 JSON 
@@ -326,9 +305,9 @@ func (m *UserOther) DaoDataType() string {
 	if m.Other != nil {
 		for k, v := range dao.FieldPatch(m.Other) {
 			if v == nil {
-				exprs = append(exprs, dao.DefaultDialect.JSONBuild("other").Tx(tx).HasKeys(strings.Split(k, ",")...))
+				exprs = append(exprs, dao.JSONQuery("other").HasKey(strings.Split(k, ".")...))
 			} else {
-				exprs = append(exprs, dao.DefaultDialect.JSONBuild("other").Tx(tx).Equals(v, strings.Split(k, ",")...))
+				exprs = append(exprs, dao.JSONQuery("other").Equals(v, strings.Split(k, ".")...))
 			}
 		}
 	}
@@ -356,6 +335,7 @@ syntax = "protoc"
 message 支持以下注释:
 ```protobuf
 // +gen:dao  => 只有标识该注释的 message 才会生成 CURD 代码
+// +gen:object => 会生成 storage.Storage 接口方法
 ```
 
 #### field 支持
