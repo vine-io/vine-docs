@@ -19,7 +19,7 @@ ADD helloworld /helloworld
 
 EXPOSE 11500
 
-ENTRYPOINT [ "/helloworld", "--server-address=0.0.0.0:11500" ]
+ENTRYPOINT [ "/helloworld", "--server.address=0.0.0.0:11500" ]
 ```
 ### 编译项目
 ```bash
@@ -41,7 +41,7 @@ docker run --rm -p 11500:11500 helloworl
 
 ### 启动 gpm 
 ```go
-gpm start -A '--server-address=0.0.0.0:7700'
+gpm start -A '--server.address=0.0.0.0:7700'
 ```
 
 ### 服务打包
